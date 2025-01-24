@@ -18,7 +18,11 @@ const RateLimit = parseInt(process.env.RATE_LIMIT || '100');
 // Middleware
 app.use(cors());
 app.use(helmet());
-app.use(bodyParser.urlencoded({ extended: true })); 
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use('/profile', (req, res, next) => {
+  console.log(`Received request for Profile service: ${req.method} ${req.originalUrl}`);
+  next();
+});
 app.use(
   '/auth',
   createProxyMiddleware({
@@ -27,29 +31,23 @@ app.use(
     pathRewrite: {
       '^/auth': '', // Remove `/auth` from forwarded path
     },
-    onProxyReq: (proxyReq, req) => {
-      // Debug: Log incoming request at the gateway
-      console.log('Incoming Request to Gateway:');
-      console.log('Method:', req.method);
-      console.log('Path:', req.path);
-      console.log('Body:', req.body);
+  })
+);
 
-      // Forward the request body
-      if (req.body) {
-        const bodyData = JSON.stringify(req.body);
-        proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
-        proxyReq.write(bodyData);
-      }
-    },
-    onError: (err) => {
-      console.error('Proxy Error:', err);
+app.use(
+  '/profile',
+  createProxyMiddleware({
+    target: process.env.PROFILE_SERVICE_URL,
+    changeOrigin: true,
+    pathRewrite: {
+      '^/profile': '',
     },
   })
 );
-app.use(express.json()); 
+
+
+app.use(express.json());
 app.use(morgan('combined'));
-
-
 
 // Rate Limiting
 const limiter = rateLimit({
@@ -61,8 +59,6 @@ app.use(limiter);
 
 // Route to handle health check
 app.use('/', router);
-
-
 
 // Start the Gateway Service
 app.listen(PORT, () => {

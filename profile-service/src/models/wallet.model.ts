@@ -1,13 +1,13 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 interface IWallet extends Document {
-  userId: mongoose.Schema.Types.ObjectId;
+  userId: string;  
   balance: number;
 }
 
 const WalletSchema: Schema = new Schema(
   {
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    userId: { type: String, required: true }, 
     balance: { type: Number, required: true, default: 0 },
   },
   { timestamps: true }

@@ -2,11 +2,13 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import profileRoutes from './routes/user.routes';
+import cors from 'cors';
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/profile-service')
@@ -16,7 +18,7 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/profile-ser
 // Profile routes
 app.use('/', profileRoutes);
 
-const port = process.env.PORT || 5001;
+const port = process.env.PORT || 5002;
 app.listen(port, () => {
   console.log(`Profile Service is running on http://localhost:${port}`);
 });

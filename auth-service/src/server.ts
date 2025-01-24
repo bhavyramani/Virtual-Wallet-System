@@ -22,7 +22,7 @@ mongoose.connect(process.env.MONGODB_URI || '')
 app.use(userRoutes);
 
 app.listen(port, () => {
-  console.log(`Server is running at http://${host}:${port}`);
+  console.log(`Auth Service is running at http://${host}:${port}`);
 });
 
 

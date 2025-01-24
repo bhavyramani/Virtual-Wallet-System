@@ -1,13 +1,12 @@
 import express from 'express';
 import { getProfile } from '../controllers/getProfile.controller';
-import { updateProfile, validateProfileUpdate } from '../controllers/updateProfile.controller';
+import { updateProfile } from '../controllers/updateProfile.controller';
+import { createProfile } from '../controllers/createProfile.controller';
 
 const router = express.Router();
 
-// Fetch user profile
-router.get('/user/:id', getProfile);
-
-// Update user profile
-router.put('/user/:id', validateProfileUpdate, updateProfile);
+router.get('/:id', getProfile);
+router.put('/:id', updateProfile);
+router.post('/create', createProfile)
 
 export default router;

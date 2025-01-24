@@ -1,8 +1,10 @@
 import { promisify } from 'util';
 import Redis from 'ioredis';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const client = Redis.createClient({
-  host: 'localhost', // Redis host
+  host: process.env.REDIS_CLIENT, // Redis host
   port: 6379,        // Redis port
 });
 
