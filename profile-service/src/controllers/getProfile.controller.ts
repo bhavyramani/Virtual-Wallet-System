@@ -6,7 +6,10 @@ import { getAsync, client } from '../utils/redisClient';
 
 export const getProfile = async (req: Request, res: Response) => {
   const { id } = req.params;
-  console.log('id', id);  
+  const userId = req.headers['x-user-id'] as string;
+  if (userId !== id) {
+    return res.status(403).json({ message: 'Access denied' });
+  }
   try {
     // Fetch profile from the database (always fetched from DB)
     const profile = await Profile.findOne({ userId: id });

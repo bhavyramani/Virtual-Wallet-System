@@ -1,5 +1,7 @@
 import { body, validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs';
+import { v4 as uuidv4 } from 'uuid';
+import axios from 'axios'; // Import axios for making HTTP requests
 import User from '../models/user.model';
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
@@ -12,7 +14,6 @@ export const validateRegister = [
 
 // Controller for user registration
 export const registerUser = async (req: Request, res: Response) => {
-  
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -27,16 +28,38 @@ export const registerUser = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
+    // Generate a unique userId
+    const userId = uuidv4();
+
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create new user
-    const newUser = new User({ email, password: hashedPassword });
+    // Create new user with userId
+    const newUser = new User({ userId, email, password: hashedPassword });
     await newUser.save();
+
+    // Make a request to the Profile service to create a profile
+    try {
+      const profileResponse = await axios.post(`${process.env.PROFILE_SERVICE_URL}/create`, {
+        userId,
+        email, // Include email in the profile creation request
+      });
+
+      if (profileResponse.status !== 201) {
+        // If the profile creation fails, delete the user from the Auth service
+        await User.deleteOne({ userId });
+        return res.status(500).json({ message: 'Profile creation failed' });
+      }
+    } catch (profileError) {
+      console.error('Error creating profile:', profileError);
+      // If the profile creation fails, delete the user from the Auth service
+      await User.deleteOne({ userId });
+      return res.status(500).json({ message: 'Profile creation failed' });
+    }
 
     // Create a JWT token
     const token = jwt.sign(
-      { userId: newUser._id, email: newUser.email },
+      { userId: newUser.userId },
       process.env.JWT_SECRET as string, // Make sure you set JWT_SECRET in .env
       { expiresIn: '1h' }
     );
@@ -49,7 +72,7 @@ export const registerUser = async (req: Request, res: Response) => {
     });
 
     // Send response
-    res.status(201).json({ message: 'User created successfully', userId: newUser._id });
+    res.status(201).json({ message: 'User created successfully', userId: newUser.userId });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });

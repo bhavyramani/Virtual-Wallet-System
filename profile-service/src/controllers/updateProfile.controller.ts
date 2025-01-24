@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import Profile from '../models/profile.model';
 import Wallet from '../models/wallet.model';
 import { client, getAsync } from '../utils/redisClient';
+import axios from 'axios';
 
 export const updateProfile = async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -18,11 +19,26 @@ export const updateProfile = async (req: Request, res: Response) => {
 
     // Check if email already exists (skip update if it exists)
     if (email && email !== profile.email) {
-      const existingEmail = await Profile.findOne({ email });
-      if (existingEmail) {
-        return res.status(400).json({ message: 'Email already exists' });
+      try {
+        const authResponse = await axios.put(
+          `http://127.0.0.1:5001/auth/updateEmail/${id}`,
+          { email }
+        );
+
+        // If the Auth service confirms the email update, proceed to update the profile
+        if (authResponse.status === 200) {
+          profile.email = email; // Update email in profile
+        } else {
+          return res
+            .status(400)
+            .json({ message: 'Failed to update email in Auth service' });
+        }
+      } catch (err) {
+        console.error('Error updating email in Auth service:', err);
+        return res
+          .status(500)
+          .json({ message: 'Error updating email in Auth service' });
       }
-      profile.email = email; // Update email if it's not already taken
     }
 
     // Check if phone already exists (skip update if it exists)
@@ -36,13 +52,13 @@ export const updateProfile = async (req: Request, res: Response) => {
 
     // Update other profile details (name can be updated without conflict)
     if (name) profile.name = name;
-    
+
     await profile.save(); // Save the updated profile
 
     // Update wallet balance if provided
     if (balance !== undefined) {
       wallet.balance = balance;
-      await wallet.save();  // Save the updated wallet
+      await wallet.save(); // Save the updated wallet
 
       // Clear the old balance cache from Redis
       client.del(`wallet_balance:${id}`);

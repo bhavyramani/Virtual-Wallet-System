@@ -31,9 +31,8 @@ export const loginUser = async (req: Request, res: Response) => {
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
-
     // Generate JWT token
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user.userId }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
 
     // Set the JWT token as a cookie
     res.cookie('token', token, {

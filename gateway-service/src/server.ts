@@ -4,9 +4,10 @@ import dotenv from 'dotenv';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { createProxyMiddleware } from 'http-proxy-middleware';
-import router from './routes';
+import router from './routes/routes';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
+import { authMiddleware } from './middlewares/auth.middleware';
 
 dotenv.config();
 
@@ -19,10 +20,7 @@ const RateLimit = parseInt(process.env.RATE_LIMIT || '100');
 app.use(cors());
 app.use(helmet());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use('/profile', (req, res, next) => {
-  console.log(`Received request for Profile service: ${req.method} ${req.originalUrl}`);
-  next();
-});
+
 app.use(
   '/auth',
   createProxyMiddleware({
@@ -36,6 +34,12 @@ app.use(
 
 app.use(
   '/profile',
+  authMiddleware,
+  (req: Request, res: Response, next: NextFunction) => {
+    // Forward the user info as a header to the proxied request
+    req.headers['x-user-id'] = req.user?.userId;  // Add userId to headers
+    next();
+  },
   createProxyMiddleware({
     target: process.env.PROFILE_SERVICE_URL,
     changeOrigin: true,
@@ -44,6 +48,8 @@ app.use(
     },
   })
 );
+
+
 
 
 app.use(express.json());
