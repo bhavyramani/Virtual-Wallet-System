@@ -23,7 +23,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
 
     // Attach userId to the request object
     req.user = { userId: decoded.userId };
-    console.log('Token decoded, userId:', req.user.userId); // Log decoded userId for debugging
+
 
     next(); // Proceed to the next middleware/route handler
   } catch (err) {
