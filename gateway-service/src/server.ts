@@ -8,6 +8,7 @@ import router from './routes/routes';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import { authMiddleware } from './middlewares/auth.middleware';
+import { Request, Response, NextFunction } from 'express';
 
 dotenv.config();
 
@@ -36,8 +37,7 @@ app.use(
   '/profile',
   authMiddleware,
   (req: Request, res: Response, next: NextFunction) => {
-    // Forward the user info as a header to the proxied request
-    req.headers['x-user-id'] = req.user?.userId;  // Add userId to headers
+    req.headers['x-user-id'] = req.user?.UserId;  // Add UserId to headers
     next();
   },
   createProxyMiddleware({
@@ -49,8 +49,21 @@ app.use(
   })
 );
 
-
-
+app.use(
+  '/wallet',
+  authMiddleware,
+  (req: Request, res: Response, next: NextFunction) => {
+    req.headers['x-user-id'] = req.user?.UserId;  // Add UserId to headers
+    next();
+  },
+  createProxyMiddleware({
+    target: process.env.WALLET_SERVICE_URL,
+    changeOrigin: true,
+    pathRewrite: {
+      '^/wallet': '',
+    },
+  })
+);
 
 app.use(express.json());
 app.use(morgan('combined'));
