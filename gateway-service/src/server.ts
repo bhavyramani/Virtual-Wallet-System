@@ -52,10 +52,6 @@ app.use(
 app.use(
   '/wallet',
   authMiddleware,
-  (req: Request, res: Response, next: NextFunction) => {
-    req.headers['x-user-id'] = req.user?.UserId;  // Add UserId to headers
-    next();
-  },
   createProxyMiddleware({
     target: process.env.WALLET_SERVICE_URL,
     changeOrigin: true,

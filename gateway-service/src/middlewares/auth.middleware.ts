@@ -30,12 +30,6 @@ export const authMiddleware = (
         .json({ message: "Token does not contain a valid UserId" });
     }
 
-    const UserId =
-      (req.headers["x-user-id"] as string) ||
-      (req.path.split("/")[1] as string);
-    if (decoded.UserId != UserId) {
-      return res.status(403).json({ message: "Access denied" });
-    }
     // Attach UserId to the request object
     req.user = { UserId: decoded.UserId };
 
