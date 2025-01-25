@@ -1,0 +1,19 @@
+# Ignore the virtual environment
+venv/
+
+# Ignore Python bytecode files
+*.pyc
+__pycache__/
+
+# Ignore environment variable files
+.env
+
+# Ignore logs
+*.log
+
+debug/
+docker-compose.yml
+
+# Ignore system-specific files
+.DS_Store
+Thumbs.db
