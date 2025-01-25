@@ -6,8 +6,8 @@ import { Request, Response } from 'express';
 
 // Validation middleware for login
 export const validateLogin = [
-  body('email').isEmail().withMessage('Please provide a valid email'),
-  body('password').notEmpty().withMessage('Password is required'),
+  body('Email').isEmail().withMessage('Please provide a valid Email'),
+  body('Password').notEmpty().withMessage('Password is required'),
 ];
 
 // Controller for user login
@@ -17,22 +17,22 @@ export const loginUser = async (req: Request, res: Response) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { email, password } = req.body;
+  const { Email, Password } = req.body;
 
   try {
-    // Find user by email
-    const user = await User.findOne({ email });
+    // Find user by Email
+    const user = await User.findOne({ Email});
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Compare passwords
-    const isMatch = await bcrypt.compare(password, user.password);
+    // Compare Passwords
+    const isMatch = await bcrypt.compare(Password, user.Password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
     // Generate JWT token
-    const token = jwt.sign({ userId: user.userId }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
+    const token = jwt.sign({ UserId: user.UserId }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
 
     // Set the JWT token as a cookie
     res.cookie('token', token, {
@@ -42,7 +42,7 @@ export const loginUser = async (req: Request, res: Response) => {
     });
 
     // Send response
-    res.status(200).json({ message: 'Login successful' });
+    res.status(200).json({ message: 'Login successful', UserId: user.UserId });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });

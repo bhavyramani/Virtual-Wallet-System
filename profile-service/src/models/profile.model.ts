@@ -1,16 +1,16 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 interface IProfile extends Document {
-  userId: string; 
+  UserId: string; 
   name: string;
-  email: string;
+  Email: string;
   phone: string;
 }
 
 const profileSchema: Schema = new Schema({
-  userId: { type: String, required: true },
+  UserId: { type: String, required: true },
   name: { type: String },
-  email: { type: String, required: true, unique:true },
+  Email: { type: String, required: true, unique:true },
   phone: { type: String },
 });
 

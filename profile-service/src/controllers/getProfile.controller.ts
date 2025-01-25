@@ -1,18 +1,14 @@
 import { Request, Response } from 'express';
-import { Types } from 'mongoose';  // Import Types from mongoose
 import Profile from '../models/profile.model';
-import Wallet from '../models/wallet.model';
+import axios from 'axios';
 import { getAsync, client } from '../utils/redisClient';
 
 export const getProfile = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const userId = req.headers['x-user-id'] as string;
-  if (userId !== id) {
-    return res.status(403).json({ message: 'Access denied' });
-  }
+
   try {
     // Fetch profile from the database (always fetched from DB)
-    const profile = await Profile.findOne({ userId: id });
+    const profile = await Profile.findOne({ UserId: id });
     if (!profile) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -26,15 +22,22 @@ export const getProfile = async (req: Request, res: Response) => {
       // If balance is cached, use it
       walletBalance = cachedBalance;
     } else {
-      // If balance is not cached, fetch it from the DB and cache it
-      const wallet = await Wallet.findOne({ userId: id });
-      if (!wallet) {
-        return res.status(404).json({ message: 'Wallet not found' });
-      }
-      walletBalance = wallet.balance;
+      // If balance is not cached, send a request to the Wallet Service to fetch balance
+      const walletServiceUrl = process.env.WALLET_SERVICE_URL || 'http://localhost:5003';
+      try {
+        const walletResponse = await axios.post(`${walletServiceUrl}/balance`, 
+          {  UserId: id  });
+        if (walletResponse.status !== 200) {
+          return res.status(walletResponse.status).json({ message: 'Failed to fetch wallet balance' });
+        }
+        walletBalance = walletResponse.data.balance;
 
-      // Cache wallet balance for 1 hour
-      client.setex(`wallet_balance:${id}`, 3600, walletBalance.toString());
+        // Cache wallet balance for 1 hour
+        client.setex(`wallet_balance:${id}`, 3600, walletBalance.toString());
+      } catch (err) {
+        console.error('Error fetching wallet balance from Wallet Service:', err);
+        return res.status(500).json({ message: 'Error fetching wallet balance from Wallet Service' });
+      }
     }
 
     return res.status(200).json({
