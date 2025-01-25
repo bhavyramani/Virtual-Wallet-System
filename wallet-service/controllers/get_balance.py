@@ -31,7 +31,7 @@ def get_balance():
         if not wallet:
             return jsonify({'message': 'Wallet not found'}), 404
 
-        wallet_balance = wallet.balance
+        wallet_balance = wallet.Balance
 
         
         client.setex(f'wallet_balance:{UserId}', timedelta(seconds=3600), str(wallet_balance))

@@ -1,16 +1,19 @@
-import { Request, Response } from 'express';
-import Profile from '../models/profile.model';
-import axios from 'axios';
-import { getAsync, client } from '../utils/redisClient';
+import { Request, Response } from "express";
+import Profile from "../models/profile.model";
+import axios from "axios";
+import { getAsync, client } from "../utils/redisClient";
 
 export const getProfile = async (req: Request, res: Response) => {
   const { id } = req.params;
-
   try {
+    const userId = req.headers["x-user-id"] as string;
+    if (userId !== id) {
+      return res.status(403).json({ message: "Access denied" });
+    }
     // Fetch profile from the database (always fetched from DB)
     const profile = await Profile.findOne({ UserId: id });
     if (!profile) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
     // Check Redis for cached wallet balance
@@ -23,20 +26,31 @@ export const getProfile = async (req: Request, res: Response) => {
       walletBalance = cachedBalance;
     } else {
       // If balance is not cached, send a request to the Wallet Service to fetch balance
-      const walletServiceUrl = process.env.WALLET_SERVICE_URL || 'http://localhost:5003';
+      const walletServiceUrl =
+        process.env.WALLET_SERVICE_URL || "http://localhost:5003";
       try {
-        const walletResponse = await axios.post(`${walletServiceUrl}/balance`, 
-          {  UserId: id  });
+        const walletResponse = await axios.post(`${walletServiceUrl}/balance`, {
+          UserId: id,
+        });
         if (walletResponse.status !== 200) {
-          return res.status(walletResponse.status).json({ message: 'Failed to fetch wallet balance' });
+          return res
+            .status(walletResponse.status)
+            .json({ message: "Failed to fetch wallet balance" });
         }
         walletBalance = walletResponse.data.balance;
 
         // Cache wallet balance for 1 hour
         client.setex(`wallet_balance:${id}`, 3600, walletBalance.toString());
       } catch (err) {
-        console.error('Error fetching wallet balance from Wallet Service:', err);
-        return res.status(500).json({ message: 'Error fetching wallet balance from Wallet Service' });
+        console.error(
+          "Error fetching wallet balance from Wallet Service:",
+          err
+        );
+        return res
+          .status(500)
+          .json({
+            message: "Error fetching wallet balance from Wallet Service",
+          });
       }
     }
 
@@ -46,6 +60,6 @@ export const getProfile = async (req: Request, res: Response) => {
     });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ message: "Server error" });
   }
 };

@@ -7,9 +7,14 @@ dotenv.config();
 
 export const updateProfile = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { name, Email, phone } = req.body; // Exclude balance from the body as users cannot change it
+  const { Name, Email, Phone } = req.body; // Exclude balance from the body as users cannot change it
 
   try {
+    const userId = req.headers['x-user-id'] as string; // Extract userId from headers
+    
+    if (userId !== id) {
+      return res.status(403).json({ message: 'You are not authorized to update this profile' });
+    }
 
     // Fetch the profile and wallet associated with the user
     const profile = await Profile.findOne({ UserId: id });
@@ -48,18 +53,18 @@ export const updateProfile = async (req: Request, res: Response) => {
     }
 
     // Name update
-    if (name && name !== profile.name) {
-      profile.name = name; // Update name in profile
-      updateResponse.nameUpdated = true; // Track name update success
+    if (Name && Name !== profile.Name) {
+      profile.Name = Name; // Update Name in profile
+      updateResponse.nameUpdated = true; // Track Name update success
     }
 
     // Phone update
-    if (phone && phone !== profile.phone) {
-      const existingPhone = await Profile.findOne({ phone });
+    if (Phone && Phone !== profile.Phone) {
+      const existingPhone = await Profile.findOne({ Phone });
       if (existingPhone) {
         return res.status(400).json({ message: 'Phone number already exists' });
       }
-      profile.phone = phone; // Update phone if it's not already taken
+      profile.Phone = Phone; // Update phone if it's not already taken
       updateResponse.phoneUpdated = true; // Track phone update success
     }
 
