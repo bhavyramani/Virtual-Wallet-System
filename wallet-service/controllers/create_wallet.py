@@ -9,14 +9,12 @@ create_wallet_bp = Blueprint('create_wallet', __name__)
 def create_wallet():
     data = request.get_json()
     UserId = data.get('UserId')
-    print(UserId)
+
     if not UserId:
         return jsonify({'message': 'UserId is required'}), 400
 
     try:
-        
         new_wallet = Wallet(UserId=UserId, Balance=0)
-
         db.session.add(new_wallet)
         db.session.commit()
         return jsonify({'message': 'Wallet created successfully', 'wallet': new_wallet.to_dict()}), 201

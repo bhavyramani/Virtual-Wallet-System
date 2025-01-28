@@ -1,8 +1,8 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-import profileRoutes from './routes/user.routes';
-import cors from 'cors';
+import express from "express";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import profileRoutes from "./routes/user.routes";
+import cors from "cors";
 
 dotenv.config();
 
@@ -11,12 +11,13 @@ app.use(express.json());
 app.use(cors());
 
 // MongoDB connection
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/profile-service')
-.then(() => console.log('Connected to MongoDB'))
-.catch((err) => console.error('Failed to connect to MongoDB:', err));
+mongoose
+  .connect(process.env.MONGO_URI || "mongodb://localhost:27017/profile-service")
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((err) => console.error("Failed to connect to MongoDB:", err));
 
 // Profile routes
-app.use('/', profileRoutes);
+app.use("/", profileRoutes);
 
 const port = process.env.PORT || 5002;
 app.listen(port, () => {
