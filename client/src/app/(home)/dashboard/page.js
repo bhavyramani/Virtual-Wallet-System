@@ -1,17 +1,32 @@
 'use client'
-import React from 'react'
-import { useEffect } from 'react'
+import axios from 'axios';
+import React, { useEffect } from 'react'
 
-const Dashboard = () => {
+const DashboardPage = () => {
+
+  const fetchProfileData = async () => {
+    try{
+      console.log(`${process.env.NEXT_PUBLIC_BACKEND_URL}/profile`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/profile`, {
+        withCredentials: true,
+      });
+      console.log(response.data);
+
+    }catch(error){
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
-    console.log('Dashboard Page')
-  }, []);
+    fetchProfileData();
+  });
   return (
+    <>
     <div>
-      
+        This is dashboard Page
     </div>
+    </>
   )
 }
 
-export default Dashboard;
+export default DashboardPage

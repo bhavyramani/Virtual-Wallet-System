@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const RegistrationPage = () => {
   const [formData, setFormData] = useState({
@@ -61,7 +62,7 @@ const RegistrationPage = () => {
       
       if (response.status === 201) {
         toast.success("Account created successfully.");
-        router.push("/dashboard");
+        router.push("/dashboard"); 
       }
     } catch (error) {
       toast.error(error.message);
@@ -84,7 +85,7 @@ const RegistrationPage = () => {
       </div>
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label
               htmlFor="email"
@@ -92,7 +93,7 @@ const RegistrationPage = () => {
             >
               Email address
             </label>
-            <div className="mt-2">
+            <div className="mt-1">
               <input
                 id="email"
                 name="email"
@@ -112,7 +113,7 @@ const RegistrationPage = () => {
             >
               Password
             </label>
-            <div className="mt-2">
+            <div className="mt-1">
               <input
                 id="password"
                 name="password"
@@ -135,7 +136,7 @@ const RegistrationPage = () => {
             >
               Confirm Password
             </label>
-            <div className="mt-2">
+            <div className="mt-1">
               <input
                 id="confirmPassword"
                 name="confirmPassword"
@@ -171,6 +172,15 @@ const RegistrationPage = () => {
             </button>
           </div>
         </form>
+
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-600">
+            Already have an account?{" "}
+            <Link href={"/login"}  className="font-medium text-indigo-600 hover:text-indigo-500">
+              Login here
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

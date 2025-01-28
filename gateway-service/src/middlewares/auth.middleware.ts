@@ -11,12 +11,11 @@ export const authMiddleware = (
   next: NextFunction
 ) => {
   try {
-    const token = req.headers.authorization?.split(" ")[1];
-
+    const token = req.headers.cookie?.split("=")[1];
     if (!token) {
       return res.status(401).json({ message: "Authentication token missing" });
     }
-
+    
     const decoded = jwt.verify(
       token,
       process.env.JWT_SECRET!
@@ -28,7 +27,6 @@ export const authMiddleware = (
         .json({ message: "Token does not contain a valid UserId" });
     }
 
-    // Attach UserId to the request object
     req.user = { UserId: decoded.UserId };
 
     next();
