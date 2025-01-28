@@ -9,7 +9,6 @@ import bodyParser from "body-parser";
 import morgan from "morgan";
 import { authMiddleware } from "./middlewares/auth.middleware";
 import { Request, Response, NextFunction } from "express";
-import cookieparser from "cookie-parser";
 
 dotenv.config();
 
@@ -21,8 +20,8 @@ app.use(cors({
   origin: process.env.FRONTEND_URL,
   credentials: true
 }));
+
 app.use(helmet());
-app.use(cookieparser());
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -34,6 +33,11 @@ app.use(
     pathRewrite: {
       "^/auth": "", // Remove `/auth` from forwarded path
     },
+    on:{
+      proxyRes: function(proxyRes, req, res) {
+        console.log("Proxy", res)
+      }
+    }
   })
 );
 

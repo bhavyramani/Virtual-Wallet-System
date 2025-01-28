@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -55,7 +56,7 @@ const LoginPage = () => {
       );
       if (response.status === 200) {
         toast.success("Login successful.");
-        // router.push("/dashboard");
+        router.push("/dashboard");
       }
     } catch (error) {
       toast.error(error.message);
@@ -78,7 +79,7 @@ const LoginPage = () => {
       </div>
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} method="post" className="space-y-6">
           <div>
             <label
               htmlFor="email"
@@ -86,7 +87,7 @@ const LoginPage = () => {
             >
               Email address
             </label>
-            <div className="mt-2">
+            <div className="mt-1">
               <input
                 id="email"
                 name="email"
@@ -106,7 +107,7 @@ const LoginPage = () => {
             >
               Password
             </label>
-            <div className="mt-2">
+            <div className="mt-1">
               <input
                 id="password"
                 name="password"
@@ -140,6 +141,15 @@ const LoginPage = () => {
             </button>
           </div>
         </form>
+
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-600">
+            Don't have an account?{" "}
+            <Link href="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
+              Sign up here
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

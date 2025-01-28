@@ -10,12 +10,15 @@ import {
   MenuItems,
 } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { redirect } from "next/navigation";
 
 const navigation = [
-  { name: "Dashboard", href: "#", current: false },
-  { name: "Team", href: "#", current: false },
-  { name: "Projects", href: "#", current: false },
-  { name: "Calendar", href: "#", current: false },
+  { name: "Dashboard", href: "/dashboard", current: false },
+  { name: "Setting", href: "/settings", current: true },
+  { name: "Transfer", href: "/transfer", current: false },
 ];
 
 function classNames(...classes) {
@@ -23,18 +26,33 @@ function classNames(...classes) {
 }
 
 const Navbar = ({ user }) => {
-  const [activeLink, setActiveLink] = useState("Dashboard"); // Track active link
+  const [activeLink, setActiveLink] = useState("Dashboard"); 
   const [profilePhoto, setProfilePhoto] = useState(null);
 
   useEffect(() => {
-    // Simulate fetching profile data (e.g., from an API or context)
+    
     if (user) {
       setProfilePhoto(user.profilePhoto || "default-profile.jpg");
     }
   }, [user]);
 
   const handleNavClick = (itemName) => {
-    setActiveLink(itemName); // Set active link on click
+    setActiveLink(itemName); 
+  };
+
+  const handleSignOut = async () => {
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/logout`,
+      {},
+      {withCredentials:true}
+    );
+
+    if (response.status === 200) {
+      toast.success("Sign out successful.");
+      redirect('/login');
+    }else{
+      toast.error("Sign out failed.");
+    }
   };
 
   return (
@@ -67,7 +85,7 @@ const Navbar = ({ user }) => {
               <div className="hidden sm:ml-6 sm:block">
                 <div className="flex space-x-4">
                   {navigation.map((item) => (
-                    <a
+                    <Link
                       key={item.name}
                       href={item.href}
                       aria-current={item.current ? "page" : undefined}
@@ -80,7 +98,7 @@ const Navbar = ({ user }) => {
                       onClick={() => handleNavClick(item.name)} // Update active link
                     >
                       {item.name}
-                    </a>
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -112,29 +130,14 @@ const Navbar = ({ user }) => {
                   transition
                   className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 ring-1 shadow-lg ring-black/5 transition focus:outline-hidden data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in"
                 >
+                  
                   <MenuItem>
-                    <a
-                      href="#"
-                      className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
-                    >
-                      Your Profile
-                    </a>
-                  </MenuItem>
-                  <MenuItem>
-                    <a
-                      href="#"
-                      className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
-                    >
-                      Settings
-                    </a>
-                  </MenuItem>
-                  <MenuItem>
-                    <a
-                      href="#"
-                      className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
+                    <p
+                      className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden cursor-pointer"
+                      onClick={handleSignOut}
                     >
                       Sign out
-                    </a>
+                    </p>
                   </MenuItem>
                 </MenuItems>
               </Menu>
