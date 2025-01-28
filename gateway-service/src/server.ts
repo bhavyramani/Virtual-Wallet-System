@@ -1,79 +1,82 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
-import { createProxyMiddleware } from 'http-proxy-middleware';
-import router from './routes/routes';
-import bodyParser from 'body-parser';
-import morgan from 'morgan';
-import { authMiddleware } from './middlewares/auth.middleware';
-import { Request, Response, NextFunction } from 'express';
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import { createProxyMiddleware } from "http-proxy-middleware";
+import router from "./routes/routes";
+import bodyParser from "body-parser";
+import morgan from "morgan";
+import { authMiddleware } from "./middlewares/auth.middleware";
+import { Request, Response, NextFunction } from "express";
+import cookieparser from "cookie-parser";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const RateLimit = parseInt(process.env.RATE_LIMIT || '100');
+const RateLimit = parseInt(process.env.RATE_LIMIT || "100");
 
-// Proxy middleware for /auth
-// Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true
+}));
 app.use(helmet());
+app.use(cookieparser());
+
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(
-  '/auth',
+  "/auth",
   createProxyMiddleware({
     target: process.env.AUTH_SERVICE_URL, // Forward to Auth Service
     changeOrigin: true,
     pathRewrite: {
-      '^/auth': '', // Remove `/auth` from forwarded path
+      "^/auth": "", // Remove `/auth` from forwarded path
     },
   })
 );
 
 app.use(
-  '/profile',
+  "/profile",
   authMiddleware,
   (req: Request, res: Response, next: NextFunction) => {
-    req.headers['x-user-id'] = req.user?.UserId;  // Add UserId to headers
+    req.headers["x-user-id"] = req.user?.UserId; // Add UserId to headers
     next();
   },
   createProxyMiddleware({
     target: process.env.PROFILE_SERVICE_URL,
     changeOrigin: true,
     pathRewrite: {
-      '^/profile': '',
+      "^/profile": "",
     },
   })
 );
 
 app.use(
-  '/wallet',
+  "/wallet",
   authMiddleware,
   createProxyMiddleware({
     target: process.env.WALLET_SERVICE_URL,
     changeOrigin: true,
     pathRewrite: {
-      '^/wallet': '',
+      "^/wallet": "",
     },
   })
 );
 
 app.use(express.json());
-app.use(morgan('combined'));
+app.use(morgan("combined"));
 
 // Rate Limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: RateLimit,
-  message: 'Too many requests from this IP, please try again later.',
+  message: "Too many requests from this IP, please try again later.",
 });
 app.use(limiter);
 
-// Route to handle health check
-app.use('/', router);
+app.use("/", router);
 
 // Start the Gateway Service
 app.listen(PORT, () => {
