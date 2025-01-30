@@ -16,10 +16,8 @@ export const getProfile = async (req: Request, res: Response) => {
     let profileData = {...profile._doc};
     profileData['_id'] = undefined;
     profileData['UserId'] = undefined;
-    console.log(id);
-    console.log(userId);
+    
     if(id == userId){
-
       const cachedBalance = await getAsync(`wallet_balance:${userId}`);
       let walletBalance = '0';
   
@@ -27,7 +25,7 @@ export const getProfile = async (req: Request, res: Response) => {
         walletBalance = cachedBalance;
       } else {
         const walletServiceUrl =
-          process.env.WALLET_SERVICE_URL || "http://localhost:5003";
+          process.env.WALLET_SERVICE_URL || "http://127.0.0.1:5003";
   
         try {
           const walletResponse = await axios.post(`${walletServiceUrl}/balance`, {

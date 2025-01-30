@@ -9,10 +9,11 @@ transactions_bp = Blueprint('transactions', __name__)
 @transactions_bp.before_request
 @extract_user_middleware
 
-@transactions_bp.route('/', methods=['GET'])
+@transactions_bp.route('', methods=['GET'])
 def get_transactions():
     try:
         UserId = getattr(request, 'UserId', None)
+        
         if not UserId:
             return jsonify({'message': 'Unauthorized: UserId not found'}), 401
 

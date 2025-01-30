@@ -20,7 +20,7 @@ def transfer_funds():
         data = request.get_json()
         From = data.get('From')
 
-        print(request.UserId)
+        
         if From != request.UserId:
             return jsonify({'message': 'Unauthorized'}), 401
         

@@ -13,7 +13,7 @@ def extract_user_middleware(f):
     def decorated_function(*args, **kwargs):
         try:
             
-            auth_header = request.headers.get('Cookie')
+            auth_header = request.headers.get('cookie')
             
             if not auth_header:
                 return jsonify({'message': 'Missing or invalid Authorization header'}), 401
