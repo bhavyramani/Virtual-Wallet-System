@@ -2,12 +2,13 @@
 import axios from 'axios';
 import React, { useEffect } from 'react'
 
-const DashboardPage = () => {
 
+const DashboardPage = () => {
+  
   const fetchProfileData = async () => {
     try{
-      console.log(`${process.env.NEXT_PUBLIC_BACKEND_URL}/profile`);
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/profile`, {
+      const UserId = localStorage.getItem('UserId')
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/${UserId}`, {
         withCredentials: true,
       });
       console.log(response.data);
@@ -16,14 +17,16 @@ const DashboardPage = () => {
       console.error(error);
     }
   };
-
+  
   useEffect(() => {
+    document.title = 'Dashboard';
     fetchProfileData();
   });
   return (
     <>
     <div>
-        This is dashboard Page
+        <p>This is dashboard Page</p>
+        
     </div>
     </>
   )

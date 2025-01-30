@@ -12,40 +12,53 @@ export const getProfile = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const cachedBalance = await getAsync(`wallet_balance:${userId}`);
-    let walletBalance = null;
+    const {id} = req.params;
+    let profileData = {...profile._doc};
+    profileData['_id'] = undefined;
+    profileData['UserId'] = undefined;
+    console.log(id);
+    console.log(userId);
+    if(id == userId){
 
-    if (cachedBalance) {
-      walletBalance = cachedBalance;
-    } else {
-      const walletServiceUrl =
-        process.env.WALLET_SERVICE_URL || "http://localhost:5003";
-      try {
-        const walletResponse = await axios.post(`${walletServiceUrl}/balance`, {
-          UserId: userId,
-        });
-        if (walletResponse.status !== 200) {
-          return res
-            .status(walletResponse.status)
-            .json({ message: "Failed to fetch wallet balance" });
+      const cachedBalance = await getAsync(`wallet_balance:${userId}`);
+      let walletBalance = '0';
+  
+      if (cachedBalance) {
+        walletBalance = cachedBalance;
+      } else {
+        const walletServiceUrl =
+          process.env.WALLET_SERVICE_URL || "http://localhost:5003";
+  
+        try {
+          const walletResponse = await axios.post(`${walletServiceUrl}/balance`, {
+            UserId: userId,
+          });
+  
+          if (walletResponse.status !== 200) {
+            return res
+              .status(walletResponse.status)
+              .json({ message: "Failed to fetch wallet balance" });
+          }
+          walletBalance = walletResponse.data.balance;
+          client.setex(
+            `wallet_balance:${userId}`,
+            3600,
+            walletBalance.toString()
+          );
+        } catch (err) {
+          console.error(
+            "Error fetching wallet balance from Wallet Service:",
+            err
+          );
+          return res.status(500).json({
+            message: "Error fetching wallet balance from Wallet Service",
+          });
         }
-        walletBalance = walletResponse.data.balance;
-
-        client.setex(`wallet_balance:${userId}`, 3600, walletBalance.toString());
-      } catch (err) {
-        console.error(
-          "Error fetching wallet balance from Wallet Service:",
-          err
-        );
-        return res.status(500).json({
-          message: "Error fetching wallet balance from Wallet Service",
-        });
       }
+      profileData['Balance'] = walletBalance;
     }
-    return res.status(200).json({
-      profile,
-      walletBalance,
-    });
+
+    return res.status(200).json(profileData);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Server error" });

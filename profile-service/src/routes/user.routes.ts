@@ -5,7 +5,7 @@ import { createProfile } from "../controllers/createProfile.controller";
 
 const router = express.Router();
 
-router.get("/", getProfile);
+router.get("/:id", getProfile);
 router.put("/:id", updateProfile);
 router.post("/create", createProfile);
 

@@ -33,11 +33,6 @@ app.use(
     pathRewrite: {
       "^/auth": "", // Remove `/auth` from forwarded path
     },
-    on:{
-      proxyRes: function(proxyRes, req, res) {
-        console.log("Proxy", res)
-      }
-    }
   })
 );
 

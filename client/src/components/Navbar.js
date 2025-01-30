@@ -1,24 +1,22 @@
 'use client'
 import React, { useState, useEffect } from "react";
 import {
-  Disclosure,
-  DisclosureButton,
-  DisclosurePanel,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuItems,
-} from "@headlessui/react";
-import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
+  Bars3Icon,
+  BellIcon,
+  XMarkIcon,
+  HomeIcon,    
+  CogIcon,     
+  CurrencyDollarIcon, 
+} from "@heroicons/react/24/outline";
 import Link from "next/link";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { redirect } from "next/navigation";
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", current: false },
-  { name: "Setting", href: "/settings", current: true },
-  { name: "Transfer", href: "/transfer", current: false },
+  { name: "Dashboard", href: "/dashboard", icon: <HomeIcon className="w-5 h-5" /> },
+  { name: "Setting", href: "/settings", icon: <CogIcon className="w-5 h-5" /> },
+  { name: "Transfer", href: "/transfer", icon: <CurrencyDollarIcon className="w-5 h-5" /> },
 ];
 
 function classNames(...classes) {
@@ -26,147 +24,75 @@ function classNames(...classes) {
 }
 
 const Navbar = ({ user }) => {
-  const [activeLink, setActiveLink] = useState("Dashboard"); 
-  const [profilePhoto, setProfilePhoto] = useState(null);
+  const [activeLink, setActiveLink] = useState("Dashboard");
 
   useEffect(() => {
-    
-    if (user) {
-      setProfilePhoto(user.profilePhoto || "default-profile.jpg");
-    }
+    // Optional: If you need to use the user object for other purposes.
   }, [user]);
 
   const handleNavClick = (itemName) => {
-    setActiveLink(itemName); 
+    setActiveLink(itemName);
   };
 
   const handleSignOut = async () => {
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/logout`,
       {},
-      {withCredentials:true}
+      { withCredentials: true }
     );
 
     if (response.status === 200) {
       toast.success("Sign out successful.");
       redirect('/login');
-    }else{
+    } else {
       toast.error("Sign out failed.");
     }
   };
 
   return (
-    <div>
-      <Disclosure as="nav" className="bg-gray-800">
-        <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-          <div className="relative flex h-16 items-center justify-between">
-            <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
-              <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-white focus:outline-hidden focus:ring-inset">
-                <span className="absolute -inset-0.5" />
-                <span className="sr-only">Open main menu</span>
-                <Bars3Icon
-                  aria-hidden="true"
-                  className="block size-6 group-data-open:hidden"
-                />
-                <XMarkIcon
-                  aria-hidden="true"
-                  className="hidden size-6 group-data-open:block"
-                />
-              </DisclosureButton>
-            </div>
-            <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-              <div className="flex shrink-0 items-center">
-                <img
-                  alt="Your Company"
-                  src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=500"
-                  className="h-8 w-auto"
-                />
-              </div>
-              <div className="hidden sm:ml-6 sm:block">
-                <div className="flex space-x-4">
-                  {navigation.map((item) => (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      aria-current={item.current ? "page" : undefined}
-                      className={classNames(
-                        item.name === activeLink
-                          ? "bg-gray-900 text-white"
-                          : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                        "rounded-md px-3 py-2 text-sm font-medium"
-                      )}
-                      onClick={() => handleNavClick(item.name)} // Update active link
-                    >
-                      {item.name}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-              <button
-                type="button"
-                className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden"
-              >
-                <span className="absolute -inset-1.5" />
-                <span className="sr-only">View notifications</span>
-                <BellIcon aria-hidden="true" className="size-6" />
-              </button>
-
-              {/* Profile dropdown */}
-              <Menu as="div" className="relative ml-3">
-                <div>
-                  <MenuButton className="relative flex rounded-full bg-gray-800 text-sm focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden">
-                    <span className="absolute -inset-1.5" />
-                    <span className="sr-only">Open user menu</span>
-                    <img
-                      alt="User Profile"
-                      src={profilePhoto}
-                      className="size-8 rounded-full"
-                    />
-                  </MenuButton>
-                </div>
-                <MenuItems
-                  transition
-                  className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 ring-1 shadow-lg ring-black/5 transition focus:outline-hidden data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in"
-                >
-                  
-                  <MenuItem>
-                    <p
-                      className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden cursor-pointer"
-                      onClick={handleSignOut}
-                    >
-                      Sign out
-                    </p>
-                  </MenuItem>
-                </MenuItems>
-              </Menu>
-            </div>
-          </div>
+    <div className="flex">
+      {/* Sidebar */}
+      <div className="bg-gray-800 w-64 h-screen flex flex-col">
+        <div className="flex items-center justify-center p-4">
+          <img
+            alt="Your Company"
+            src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=500"
+            className="h-8 w-auto"
+          />
         </div>
 
-        <DisclosurePanel className="sm:hidden">
-          <div className="space-y-1 px-2 pt-2 pb-3">
-            {navigation.map((item) => (
-              <DisclosureButton
-                key={item.name}
-                as="a"
-                href={item.href}
-                aria-current={item.current ? "page" : undefined}
-                className={classNames(
-                  item.name === activeLink
-                    ? "bg-gray-900 text-white"
-                    : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                  "block rounded-md px-3 py-2 text-base font-medium"
-                )}
-                onClick={() => handleNavClick(item.name)} // Update active link
-              >
-                {item.name}
-              </DisclosureButton>
-            ))}
-          </div>
-        </DisclosurePanel>
-      </Disclosure>
+        <div className="flex flex-col space-y-4 px-4">
+          {navigation.map((item) => (
+            <Link
+              key={item.name}
+              href={item.href}
+              aria-current={item.current ? "page" : undefined}
+              className={classNames(
+                item.name === activeLink
+                  ? "bg-gray-900 text-white"
+                  : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                "flex items-center rounded-md px-3 py-2 text-sm font-medium"
+              )}
+              onClick={() => handleNavClick(item.name)} // Update active link
+            >
+              {item.icon}
+              <span className="ml-3">{item.name}</span>
+            </Link>
+          ))}
+        </div>
+
+        <div className="mt-auto p-4">
+          <button
+            className="w-full text-gray-50 hover:text-gray-700 text-sm font-medium"
+            onClick={handleSignOut}
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
+
+      <div className="flex-1 p-6">
+      </div>
     </div>
   );
 };
