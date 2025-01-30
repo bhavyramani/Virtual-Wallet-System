@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import Profile from "../models/profile.model";
-import { client } from "../utils/redisClient";
 import axios from "axios";
 import dotenv from "dotenv";
 dotenv.config();
@@ -9,8 +8,8 @@ export const updateProfile = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { Name, Email, Phone } = req.body;
 
+  console.log("Here", id);
   try {
-    // Check if the user ID in the request headers matches the ID in the request params
     const userId = req.headers["x-user-id"] as string;
     if (userId !== id) {
       return res
@@ -18,6 +17,7 @@ export const updateProfile = async (req: Request, res: Response) => {
         .json({ message: "You are not authorized to update this profile" });
     }
 
+    console.log(Name, Email, Phone);
     const profile = await Profile.findOne({ UserId: id });
     if (!profile) {
       return res.status(404).json({ message: "User not found" });
