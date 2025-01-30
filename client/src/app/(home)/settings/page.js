@@ -1,11 +1,11 @@
 import React from 'react'
 
-const page = () => {
+const SettingsPage = () => {
   return (
     <div>
-      This is Profile
+      This is Settings Page
     </div>
   )
 }
 
-export default page
+export default SettingsPage

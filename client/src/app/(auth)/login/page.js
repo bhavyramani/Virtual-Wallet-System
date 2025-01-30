@@ -54,8 +54,10 @@ const LoginPage = () => {
         { Email: formData.email, Password: formData.password },
         { withCredentials: true }
       );
+      console.log(response);
       if (response.status === 200) {
         toast.success("Login successful.");
+        localStorage.setItem("UserId", response.data['UserId']);
         router.push("/dashboard");
       }
     } catch (error) {

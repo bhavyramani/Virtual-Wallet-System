@@ -46,7 +46,7 @@ export const updateProfile = async (req: Request, res: Response) => {
         } else {
           return res
             .status(400)
-            .json({ message: "Failed to update Emailin Auth service" });
+            .json({ message: "Failed to update Email in Auth service" });
         }
       } catch (err) {
         console.error("Error updating Emailin Auth service:", err);
