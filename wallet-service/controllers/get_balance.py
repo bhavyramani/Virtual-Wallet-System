@@ -11,6 +11,7 @@ client = get_redis_client()
 @balance_bp.route('/', methods=['POST'])
 def get_balance():
     UserId = request.get_json().get('UserId')
+    
     if not UserId:
         return jsonify({'message': 'user Id is required'}), 400
 
@@ -22,7 +23,7 @@ def get_balance():
             
             return jsonify({
                 'message': 'Wallet balance fetched from cache',
-                'balance': cached_balance.decode('utf-8')  
+                'balance': cached_balance
             }), 200
 
         

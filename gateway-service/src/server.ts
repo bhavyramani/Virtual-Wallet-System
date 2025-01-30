@@ -16,13 +16,15 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const RateLimit = parseInt(process.env.RATE_LIMIT || "100");
 
-app.use(cors({
-  origin: process.env.FRONTEND_URL,
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true
+  })
+);
+
 
 app.use(helmet());
-
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(

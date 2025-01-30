@@ -14,7 +14,7 @@ export const createProfile = async (req: Request, res: Response) => {
 
     // Send a request to the Wallet Service to create a new wallet
     const walletServiceUrl =
-      process.env.WALLET_SERVICE_URL || "http://localhost:5003";
+      process.env.WALLET_SERVICE_URL || "http://127.0.0.1:5003";
     const walletResponse = await axios.post(
       walletServiceUrl + "/create-wallet",
       {

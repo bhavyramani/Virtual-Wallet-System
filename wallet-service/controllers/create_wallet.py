@@ -9,7 +9,7 @@ create_wallet_bp = Blueprint('create_wallet', __name__)
 def create_wallet():
     data = request.get_json()
     UserId = data.get('UserId')
-
+    
     if not UserId:
         return jsonify({'message': 'UserId is required'}), 400
 

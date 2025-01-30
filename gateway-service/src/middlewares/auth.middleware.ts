@@ -15,7 +15,6 @@ export const authMiddleware = (
     if (!token) {
       return res.status(401).json({ message: "Authentication token missing" });
     }
-    
     const decoded = jwt.verify(
       token,
       process.env.JWT_SECRET!
@@ -23,12 +22,12 @@ export const authMiddleware = (
 
     if (!decoded.UserId) {
       return res
-        .status(401)
-        .json({ message: "Token does not contain a valid UserId" });
+      .status(401)
+      .json({ message: "Token does not contain a valid UserId" });
     }
-
+    
     req.user = { UserId: decoded.UserId };
-
+    
     next();
   } catch (err) {
     console.error("Token verification error:", err);
