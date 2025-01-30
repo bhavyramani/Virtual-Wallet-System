@@ -15,7 +15,6 @@ mongoose
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("Failed to connect to MongoDB:", err));
 
-// Profile routes
 app.use("/", profileRoutes);
 
 const port = process.env.PORT || 5002;

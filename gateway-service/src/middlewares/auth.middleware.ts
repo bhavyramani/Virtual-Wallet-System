@@ -19,7 +19,7 @@ export const authMiddleware = (
       token,
       process.env.JWT_SECRET!
     ) as AuthTokenPayload;
-
+    
     if (!decoded.UserId) {
       return res
       .status(401)
