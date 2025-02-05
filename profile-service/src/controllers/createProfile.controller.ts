@@ -5,7 +5,7 @@ import Redis from "ioredis";
 import {client } from "../utils/redisClient"
 
 export const createProfile = async (req: Request, res: Response) => {
-  const { UserId, name, Email, phone } = req.body;
+  const { UserId, Name, Email, Phone } = req.body;
   try {
     const existingProfile = await Profile.findOne({ Email });
     if (existingProfile) {
@@ -14,7 +14,7 @@ export const createProfile = async (req: Request, res: Response) => {
 
     // Send a request to the Wallet Service to create a new wallet
     const walletServiceUrl =
-      process.env.WALLET_SERVICE_URL || "http://127.0.0.1:5003";
+      process.env.WALLET_SERVICE_URL || "http://localhost:5003";
     const walletResponse = await axios.post(
       walletServiceUrl + "/create-wallet",
       {
@@ -28,10 +28,9 @@ export const createProfile = async (req: Request, res: Response) => {
         .json({ message: "Failed to create wallet" });
     }
 
-    const newProfile = new Profile({ UserId, name, Email, phone });
+    const newProfile = new Profile({ UserId, Name, Email, Phone });
     await newProfile.save();
 
-    // Cache the wallet information in Redis
     await client.set(
       `wallet:${UserId}`,
       JSON.stringify(walletResponse.data.wallet)

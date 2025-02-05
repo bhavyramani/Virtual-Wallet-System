@@ -8,7 +8,6 @@ export const updateProfile = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { Name, Email, Phone } = req.body;
 
-  console.log("Here", id);
   try {
     const userId = req.headers["x-user-id"] as string;
     if (userId !== id) {

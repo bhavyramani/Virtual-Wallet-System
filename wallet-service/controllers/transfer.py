@@ -14,13 +14,13 @@ client = get_redis_client()
 @extract_user_middleware
 
 
-@transfer_bp.route('/', methods=['POST'])
+@transfer_bp.route('', methods=['POST'])
 def transfer_funds():
     try:
+        
         data = request.get_json()
         From = data.get('From')
 
-        
         if From != request.UserId:
             return jsonify({'message': 'Unauthorized'}), 401
         
@@ -28,6 +28,7 @@ def transfer_funds():
         Amount = int(data.get('Amount'))
         
         if not From or not To or Amount is None:
+            print(From, To, Amount)
             return jsonify({'message': 'From, To, and Amount are required'}), 400
         if From == To:
             return jsonify({'message': 'Cannot transfer funds to yourself'}), 400
@@ -58,7 +59,6 @@ def transfer_funds():
 
         client.setex(f'wallet_balance:{From}', timedelta(seconds=3600), str(sender_wallet.Balance))
         client.setex(f'wallet_balance:{To}', timedelta(seconds=3600), str(receiver_wallet.Balance))
-
         return jsonify({
             'message': 'Transfer successful',
             'transaction': transaction.to_dict()
