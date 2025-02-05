@@ -15,7 +15,7 @@ import { redirect } from "next/navigation";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: <HomeIcon className="w-5 h-5" /> },
-  { name: "Setting", href: "/settings", icon: <CogIcon className="w-5 h-5" /> },
+  { name: "Settings", href: "/settings", icon: <CogIcon className="w-5 h-5" /> },
   { name: "Transfer", href: "/transfer", icon: <CurrencyDollarIcon className="w-5 h-5" /> },
 ];
 
