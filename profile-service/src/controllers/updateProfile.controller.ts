@@ -16,7 +16,6 @@ export const updateProfile = async (req: Request, res: Response) => {
         .json({ message: "You are not authorized to update this profile" });
     }
 
-    console.log(Name, Email, Phone);
     const profile = await Profile.findOne({ UserId: id });
     if (!profile) {
       return res.status(404).json({ message: "User not found" });

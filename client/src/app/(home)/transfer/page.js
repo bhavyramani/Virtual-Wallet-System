@@ -53,7 +53,7 @@ const TransferPage = () => {
         },
         { withCredentials: true }
       );
-      console.log(response);
+      
       toast.success("Transfer successful!");
       setSelectedUser(null);
       setTransferAmount("");

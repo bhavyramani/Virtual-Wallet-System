@@ -46,13 +46,13 @@ const SettingsPage = () => {
     e.preventDefault();
 
     try {
-      console.log("eh1");
+      
       const response = await axios.put(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/${UserId}`,
         userData,
         { withCredentials: true }
       );
-      console.log("eh");
+      
       toast.success('Profile updated successfully!');
     } catch (err) {
       toast.error('Failed to update profile.');

@@ -28,7 +28,6 @@ def transfer_funds():
         Amount = int(data.get('Amount'))
         
         if not From or not To or Amount is None:
-            print(From, To, Amount)
             return jsonify({'message': 'From, To, and Amount are required'}), 400
         if From == To:
             return jsonify({'message': 'Cannot transfer funds to yourself'}), 400
