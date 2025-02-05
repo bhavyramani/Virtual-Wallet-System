@@ -59,10 +59,11 @@ const RegistrationPage = () => {
         { Email: formData.email, Password: formData.password },
         { withCredentials: true }
       );
-      
+
       if (response.status === 201) {
+        localStorage.setItem("UserId", response.data["UserId"]);
         toast.success("Account created successfully.");
-        router.push("/dashboard"); 
+        router.push("/dashboard");
       }
     } catch (error) {
       toast.error(error.message);
@@ -176,7 +177,10 @@ const RegistrationPage = () => {
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
             Already have an account?{" "}
-            <Link href={"/login"}  className="font-medium text-indigo-600 hover:text-indigo-500">
+            <Link
+              href={"/login"}
+              className="font-medium text-indigo-600 hover:text-indigo-500"
+            >
               Login here
             </Link>
           </p>

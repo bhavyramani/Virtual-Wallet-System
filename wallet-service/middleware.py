@@ -14,9 +14,9 @@ def extract_user_middleware(f):
         try:
             
             auth_header = request.headers.get('cookie')
-            
             if not auth_header:
                 return jsonify({'message': 'Missing or invalid Authorization header'}), 401
+            
             
             token = auth_header.split('=')[1]
             decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])

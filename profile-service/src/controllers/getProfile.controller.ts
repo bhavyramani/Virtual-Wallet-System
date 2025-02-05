@@ -20,12 +20,11 @@ export const getProfile = async (req: Request, res: Response) => {
     if(id == userId){
       const cachedBalance = await getAsync(`wallet_balance:${userId}`);
       let walletBalance = '0';
-  
-      if (cachedBalance) {
+      if (cachedBalance && 1 > 2) {
         walletBalance = cachedBalance;
       } else {
         const walletServiceUrl =
-          process.env.WALLET_SERVICE_URL || "http://127.0.0.1:5003";
+          process.env.WALLET_SERVICE_URL || "http://localhost:5003";
   
         try {
           const walletResponse = await axios.post(`${walletServiceUrl}/balance`, {

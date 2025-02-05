@@ -81,5 +81,5 @@ app.use("/", router);
 
 // Start the Gateway Service
 app.listen(PORT, () => {
-  console.log(`Gateway Service is running on http://127.0.0.1:${PORT}`);
+  console.log(`Gateway Service is running on http://localhost:${PORT}`);
 });
