@@ -22,7 +22,6 @@ const ProfilePage = () => {
       );
       setProfile(response.data);
     } catch (err) {
-      console.error(err);
       setErrorProfile("Failed to load profile data.");
     } finally {
       setLoadingProfile(false);
@@ -43,7 +42,6 @@ const ProfilePage = () => {
       setTotalTransactions(response.data.total_transactions);
       setPage(pageNumber);
     } catch (err) {
-      console.error(err);
       setErrorTransactions("Failed to load transactions.");
     } finally {
       setLoadingTransactions(false);
@@ -94,7 +92,8 @@ const ProfilePage = () => {
       {/* Pagination Section (Top) */}
       <div className="flex justify-between items-center mb-4">
         <p className="text-gray-700">
-          Page {page} of {totalPages} ({startIndex} - {endIndex} of {totalTransactions} transactions)
+          Page {page} of {totalPages} ({startIndex} - {endIndex} of{" "}
+          {totalTransactions} transactions)
         </p>
         <div>
           <button
@@ -153,7 +152,9 @@ const ProfilePage = () => {
             <tbody>
               {transactions.map((tx, index) => (
                 <tr key={tx.Id} className="text-center border border-gray-300">
-                  <td className="border border-gray-300 p-2">{startIndex + index}</td>
+                  <td className="border border-gray-300 p-2">
+                    {startIndex + index}
+                  </td>
                   <td className="border border-gray-300 p-2">{tx.From}</td>
                   <td className="border border-gray-300 p-2">{tx.To}</td>
                   <td className="border border-gray-300 p-2">₹{tx.Amount}</td>

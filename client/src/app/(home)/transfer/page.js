@@ -22,8 +22,10 @@ const TransferPage = () => {
         { withCredentials: true }
       );
       setUsers(response.data);
-    } catch (err) {
-      toast.error("Failed to search for user.");
+    } catch (error) {
+      toast.error(
+        error.response.data.message || error.response.data.errors[0]?.msg
+      );
     }
   };
 
@@ -53,12 +55,14 @@ const TransferPage = () => {
         },
         { withCredentials: true }
       );
-      
+
       toast.success("Transfer successful!");
       setSelectedUser(null);
       setTransferAmount("");
-    } catch (err) {
-      toast.error("Transfer failed.");
+    } catch (error) {
+      toast.error(
+        error.response.data.message || error.response.data.errors[0]?.msg
+      );
     } finally {
       setLoading(false);
     }

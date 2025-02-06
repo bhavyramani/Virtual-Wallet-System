@@ -1,41 +1,43 @@
-'use client';
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+"use client";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const SettingsPage = () => {
   const [userData, setUserData] = useState({
-    Email: '',
-    Name: '',
-    Phone: ''
+    Email: "",
+    Name: "",
+    Phone: "",
   });
   const [loading, setLoading] = useState(true);
   const [UserId, setUserId] = useState(null); // State to store UserId
 
   const fetchUserData = async () => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/${UserId}`, {
-        withCredentials: true,
-      });
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/${UserId}`,
+        {
+          withCredentials: true,
+        }
+      );
       setUserData({
-        Email: response.data.Email || '',
-        Name: response.data.Name || '',
-        Phone: response.data.Phone || '',
+        Email: response.data.Email || "",
+        Name: response.data.Name || "",
+        Phone: response.data.Phone || "",
       });
-    } catch (err) {
-      toast.error('Failed to load user data.');
+    } catch (error) {
+      toast.error("Failed to load user data.");
     } finally {
       setLoading(false);
     }
   };
 
-  
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const userIdFromStorage = localStorage.getItem('UserId');
+    if (typeof window !== "undefined") {
+      const userIdFromStorage = localStorage.getItem("UserId");
       if (userIdFromStorage) {
-        setUserId(userIdFromStorage); 
+        setUserId(userIdFromStorage);
       }
     }
   }, []);
@@ -64,9 +66,11 @@ const SettingsPage = () => {
         { withCredentials: true }
       );
 
-      toast.success('Profile updated successfully!');
-    } catch (err) {
-      toast.error('Failed to update profile.');
+      toast.success("Profile updated successfully!");
+    } catch (error) {
+      toast.error(
+        error.response.data.message || error.response.data.errors[0]?.msg
+      );
     }
   };
 
@@ -79,12 +83,17 @@ const SettingsPage = () => {
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Email
+            </label>
             <input
               id="email"
               type="email"
               name="Email"
-              value={userData.Email || ''}
+              value={userData.Email || ""}
               onChange={handleChange}
               className="mt-1 block w-full p-2 border rounded-md"
               placeholder="Enter your email"
@@ -93,12 +102,17 @@ const SettingsPage = () => {
           </div>
 
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Name
+            </label>
             <input
               id="name"
               type="text"
               name="Name"
-              value={userData.Name || ''}
+              value={userData.Name || ""}
               onChange={handleChange}
               className="mt-1 block w-full p-2 border rounded-md"
               placeholder="Enter your name"
@@ -106,12 +120,17 @@ const SettingsPage = () => {
           </div>
 
           <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone</label>
+            <label
+              htmlFor="phone"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Phone
+            </label>
             <input
               id="phone"
               type="text"
               name="Phone"
-              value={userData.Phone || ''}
+              value={userData.Phone || ""}
               onChange={handleChange}
               className="mt-1 block w-full p-2 border rounded-md"
               placeholder="Enter your phone number"
