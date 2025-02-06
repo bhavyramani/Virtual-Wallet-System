@@ -4,10 +4,12 @@ import Profile from "../models/profile.model";
 import Redis from "ioredis";
 import { client } from "../utils/redisClient";
 
-export const createProfile = async (req: Request, res: Response): Promise<void> => {
+export const createProfile = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { UserId, Name, Email, Phone } = req.body;
   try {
-    
     const existingProfile = await Profile.findOne({ Email });
     if (existingProfile) {
       res.status(400).json({ message: "Email already exists" });

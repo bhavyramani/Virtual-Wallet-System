@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const client = new Redis({
-  host: process.env.REDIS_CLIENT, 
+  host: process.env.REDIS_CLIENT,
   port: 6379,
 });
 

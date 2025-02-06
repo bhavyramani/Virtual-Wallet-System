@@ -1,9 +1,9 @@
-'use client'
+"use client";
 import React, { useState, useEffect } from "react";
 import {
-  HomeIcon,    
-  CogIcon,     
-  CurrencyDollarIcon, 
+  HomeIcon,
+  CogIcon,
+  CurrencyDollarIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import axios from "axios";
@@ -11,9 +11,21 @@ import { toast } from "react-toastify";
 import { redirect } from "next/navigation";
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: <HomeIcon className="w-5 h-5" /> },
-  { name: "Settings", href: "/settings", icon: <CogIcon className="w-5 h-5" /> },
-  { name: "Transfer", href: "/transfer", icon: <CurrencyDollarIcon className="w-5 h-5" /> },
+  {
+    name: "Dashboard",
+    href: "/dashboard",
+    icon: <HomeIcon className="w-5 h-5" />,
+  },
+  {
+    name: "Settings",
+    href: "/settings",
+    icon: <CogIcon className="w-5 h-5" />,
+  },
+  {
+    name: "Transfer",
+    href: "/transfer",
+    icon: <CurrencyDollarIcon className="w-5 h-5" />,
+  },
 ];
 
 function classNames(...classes) {
@@ -40,7 +52,7 @@ const Navbar = ({ user }) => {
 
     if (response.status === 200) {
       toast.success("Sign out successful.");
-      redirect('/login');
+      redirect("/login");
     } else {
       toast.error("Sign out failed.");
     }
@@ -88,8 +100,7 @@ const Navbar = ({ user }) => {
         </div>
       </div>
 
-      <div className="flex-1 p-6">
-      </div>
+      <div className="flex-1 p-6"></div>
     </div>
   );
 };
