@@ -27,8 +27,7 @@ export const registerUser = async (
   }
 
   const { Email, Password } = req.body;
-  console.log("This one", Email, Password, req.url);
-  console.log("Proile url", process.env.PROFILE_SERVICE_URL);
+
   try {
     const existingUser = await User.findOne({ Email });
     if (existingUser) {

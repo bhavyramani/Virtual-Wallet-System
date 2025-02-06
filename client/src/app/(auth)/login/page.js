@@ -53,14 +53,16 @@ const LoginPage = () => {
         { Email: formData.email, Password: formData.password },
         { withCredentials: true }
       );
-      
+
       if (response.status === 200) {
         toast.success("Login successful.");
-        localStorage.setItem("UserId", response.data['UserId']);
+        localStorage.setItem("UserId", response.data["UserId"]);
         router.push("/dashboard");
       }
     } catch (error) {
-      toast.error(error.message);
+      toast.error(
+        error.response.data.message || error.response.data.errors[0]?.msg
+      );
     } finally {
       setLoading(false);
     }
@@ -146,7 +148,10 @@ const LoginPage = () => {
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
             Don't have an account?{" "}
-            <Link href="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
+            <Link
+              href="/register"
+              className="font-medium text-indigo-600 hover:text-indigo-500"
+            >
               Sign up here
             </Link>
           </p>

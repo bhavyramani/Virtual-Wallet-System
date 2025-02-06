@@ -7,7 +7,7 @@ import { client } from "../utils/redisClient";
 export const createProfile = async (req: Request, res: Response): Promise<void> => {
   const { UserId, Name, Email, Phone } = req.body;
   try {
-    console.log("Profile log", req.body);
+    
     const existingProfile = await Profile.findOne({ Email });
     if (existingProfile) {
       res.status(400).json({ message: "Email already exists" });

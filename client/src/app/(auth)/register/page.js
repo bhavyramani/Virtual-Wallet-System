@@ -66,7 +66,9 @@ const RegistrationPage = () => {
         router.push("/dashboard");
       }
     } catch (error) {
-      toast.error(error.message);
+      toast.error(
+        error.response.data.message || error.response.data.errors[0]?.msg
+      );
     } finally {
       setLoading(false);
     }
