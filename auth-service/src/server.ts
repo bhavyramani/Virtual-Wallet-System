@@ -6,7 +6,7 @@ import userRoutes from "./routes/user.routes";
 
 dotenv.config();
 
-const port = process.env.PORT || 5001;
+const port = process.env.AUTH_PORT || 5001;
 const host = process.env.HOST || "localhost";
 
 const app: Application = express();

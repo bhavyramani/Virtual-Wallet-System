@@ -1,0 +1,140 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - vws-network
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - vws-network
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: wallet_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - vws-network
+
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    restart: always
+    depends_on:
+      - mongo
+    environment:
+      AUTH_PORT: 5001
+      PROFILE_SERVICE_URL: http://profile-service:5002
+      JWT_SECRET: mysecretkey
+      MONGODB_URI: mongodb://mongo:27017/auth-service
+      FRONTEND_URL: http://localhost:3000
+    ports:
+      - "5001:5001"
+    networks:
+      - vws-network
+
+  gateway-service:
+    build: ./gateway-service
+    container_name: gateway-service
+    restart: always
+    depends_on:
+      - auth-service
+      - profile-service
+      - wallet-service
+    ports:
+      - "5000:5000"
+    environment:
+      PORT: 5000
+      RATE_LIMIT: 100
+      AUTH_SERVICE_URL: http://auth-service:5001
+      PROFILE_SERVICE_URL: http://profile-service:5002
+      WALLET_SERVICE_URL: http://wallet-service:5003
+      JWT_SECRET: mysecretkey
+      FRONTEND_URL: http://localhost:3000
+    networks:
+      - vws-network
+
+  profile-service:
+    build: ./profile-service
+    container_name: profile-service
+    restart: always
+    depends_on:
+      - mongo
+      - redis
+    environment:
+      MONGO_URI: mongodb://mongo:27017/profile-service
+      PORT: 5002
+      REDIS_CLIENT: redis
+      AUTH_SERVICE_URL: http://auth-service:5001
+      WALLET_SERVICE_URL: http://wallet-service:5003
+      FRONTEND_URL: http://localhost:3000
+    ports:
+      - "5002:5002"
+    networks:
+      - vws-network
+
+  wallet-service:
+    build: ./wallet-service
+    container_name: wallet-service
+    restart: always
+    depends_on:
+      - redis
+      - postgres
+    environment:
+      FLASK_ENV: development
+      FLASK_APP: app.py
+      FLASK_RUN_PORT: 5003
+      DB_NAME: wallet_db
+      DB_USER: myuser
+      DB_PASSWORD: mypassword
+      DB_HOST: postgres
+      DB_PORT: 5432
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: mysecretkey
+      FRONTEND_URL: http://localhost:3000
+    ports:
+      - "5003:5003"
+    networks:
+      - vws-network
+
+  client:
+    build: ./client
+    container_name: client
+    restart: always
+    depends_on:
+      - gateway-service
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_BACKEND_URL: http://gateway-service:5000
+    networks:
+      - vws-network
+
+volumes:
+  mongo_data:
+  postgres_data:
+
+networks:
+  vws-network:
+    driver: bridge

@@ -11,8 +11,8 @@ const SettingsPage = () => {
     Phone: ''
   });
   const [loading, setLoading] = useState(true);
-  const UserId = localStorage.getItem('UserId');
-  
+  const [UserId, setUserId] = useState(null); // State to store UserId
+
   const fetchUserData = async () => {
     try {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/${UserId}`, {
@@ -30,9 +30,21 @@ const SettingsPage = () => {
     }
   };
 
+  
   useEffect(() => {
-    fetchUserData();
+    if (typeof window !== 'undefined') {
+      const userIdFromStorage = localStorage.getItem('UserId');
+      if (userIdFromStorage) {
+        setUserId(userIdFromStorage); 
+      }
+    }
   }, []);
+
+  useEffect(() => {
+    if (UserId) {
+      fetchUserData();
+    }
+  }, [UserId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -46,13 +58,12 @@ const SettingsPage = () => {
     e.preventDefault();
 
     try {
-      
       const response = await axios.put(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/${UserId}`,
         userData,
         { withCredentials: true }
       );
-      
+
       toast.success('Profile updated successfully!');
     } catch (err) {
       toast.error('Failed to update profile.');

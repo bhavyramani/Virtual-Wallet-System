@@ -11,24 +11,27 @@ export const validateLogin = [
 ];
 
 // Controller for user login
-export const loginUser = async (req: Request, res: Response) => {
+export const loginUser = async (req: Request, res: Response): Promise<void> => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    res.status(400).json({ errors: errors.array() });
+    return;
   }
 
   const { Email, Password } = req.body;
   try {
     const user = await User.findOne({ Email });
     if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      res.status(400).json({ message: "Invalid credentials" });
+      return;
     }
-    
+
     const isMatch = await bcrypt.compare(Password, user.Password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      res.status(400).json({ message: "Invalid credentials" });
+      return;
     }
-    
+
     const token = jwt.sign(
       { UserId: user.UserId },
       process.env.JWT_SECRET || "secret",
@@ -38,12 +41,14 @@ export const loginUser = async (req: Request, res: Response) => {
     // Set the JWT token as a cookie
     res.cookie("token", token, {
       httpOnly: true, // Helps to prevent XSS attacks
-      secure: process.env.NODE_ENV === "production", 
+      secure: process.env.NODE_ENV === "production",
       maxAge: 3600000,
     });
     res.status(200).json({ message: "Login successful", UserId: user.UserId });
+    return;
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
+    return;
   }
 };
