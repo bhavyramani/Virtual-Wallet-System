@@ -3,7 +3,10 @@ import Profile from "../models/profile.model";
 import axios from "axios";
 import { getAsync, client } from "../utils/redisClient";
 
-export const getProfile = async (req: Request, res: Response): Promise<void> => {
+export const getProfile = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const userId = req.headers["x-user-id"] as string;
 

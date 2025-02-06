@@ -19,10 +19,9 @@ const RateLimit = parseInt(process.env.RATE_LIMIT || "100");
 app.use(
   cors({
     origin: process.env.FRONTEND_URL,
-    credentials: true
+    credentials: true,
   })
 );
-
 
 app.use(helmet());
 app.use(bodyParser.urlencoded({ extended: true }));

@@ -14,16 +14,24 @@ app = Flask(__name__)
 
 init_app(app)
 
-@app.route('/')
+
+@app.route("/")
 def hello_world():
-    return 'Hello, World!'
+    return "Hello, World!"
+
 
 # Apply middleware to specific blueprints
-app.register_blueprint(create_wallet_bp, url_prefix='/create-wallet')
-app.register_blueprint(balance_bp, url_prefix='/balance')
-app.register_blueprint(transfer_bp, url_prefix='/transfer')
-app.register_blueprint(transactions_bp, url_prefix='/transactions')
-CORS(app, resources={r'/*': {'origins': os.getenv('FRONTEND_URL'), 'supports_credentials': True}})
+app.register_blueprint(create_wallet_bp, url_prefix="/create-wallet")
+app.register_blueprint(balance_bp, url_prefix="/balance")
+app.register_blueprint(transfer_bp, url_prefix="/transfer")
+app.register_blueprint(transactions_bp, url_prefix="/transactions")
+CORS(
+    app,
+    resources={
+        r"/*": {"origins": os.getenv("FRONTEND_URL"), "supports_credentials": True}
+    },
+)
+
 
 def before_request_middleware():
     pass

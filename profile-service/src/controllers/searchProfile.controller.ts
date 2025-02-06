@@ -1,7 +1,10 @@
 import { Request, Response } from "express";
 import Profile from "../models/profile.model";
 
-export const searchProfile = async (req: Request, res: Response): Promise<void> => {
+export const searchProfile = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const { user } = req.body;
     if (!user) {

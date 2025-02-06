@@ -9,9 +9,7 @@ export default function RootLayout({ children }) {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 p-6 overflow-auto">
-        {children}
-      </div>
+      <div className="flex-1 p-6 overflow-auto">{children}</div>
     </div>
   );
 }

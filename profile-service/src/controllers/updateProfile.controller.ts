@@ -4,7 +4,10 @@ import axios from "axios";
 import dotenv from "dotenv";
 dotenv.config();
 
-export const updateProfile = async (req: Request, res: Response): Promise<void> => {
+export const updateProfile = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { id } = req.params;
   const { Name, Email, Phone } = req.body;
 
@@ -50,10 +53,9 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
           return;
         }
       } catch (err) {
-        console.error("Error updating Emailin Auth service:", err);
         res
           .status(500)
-          .json({ message: "Error updating Emailin Auth service" });
+          .json({ message: "Email Already Exists" });
         return;
       }
     }
