@@ -1,9 +1,6 @@
 'use client'
 import React, { useState, useEffect } from "react";
 import {
-  Bars3Icon,
-  BellIcon,
-  XMarkIcon,
   HomeIcon,    
   CogIcon,     
   CurrencyDollarIcon, 

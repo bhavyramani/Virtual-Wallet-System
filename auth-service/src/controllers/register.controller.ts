@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 import User from "../models/user.model";
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
 // Validation middleware for register
@@ -15,18 +15,25 @@ export const validateRegister = [
 ];
 
 // Controller for user registration
-export const registerUser = async (req: Request, res: Response) => {
+export const registerUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    res.status(400).json({ errors: errors.array() });
+    return;
   }
 
   const { Email, Password } = req.body;
-
+  console.log("This one", Email, Password, req.url);
+  console.log("Proile url", process.env.PROFILE_SERVICE_URL);
   try {
     const existingUser = await User.findOne({ Email });
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+      res.status(400).json({ message: "User already exists" });
+      return;
     }
 
     const UserId = uuidv4();
@@ -47,13 +54,15 @@ export const registerUser = async (req: Request, res: Response) => {
       // If the profile creation fails, delete the user from the Auth service
       if (profileResponse.status !== 201) {
         await User.deleteOne({ UserId });
-        return res.status(500).json({ message: "Profile creation failed" });
+        res.status(500).json({ message: "Profile creation failed" });
+        return;
       }
     } catch (profileError) {
       // If the profile creation fails, delete the user from the Auth service
       console.error("Error creating profile:", profileError);
       await User.deleteOne({ UserId });
-      return res.status(500).json({ message: "Profile creation failed" });
+      res.status(500).json({ message: "Profile creation failed" });
+      return;
     }
 
     const token = jwt.sign(
@@ -71,8 +80,10 @@ export const registerUser = async (req: Request, res: Response) => {
     res
       .status(201)
       .json({ message: "User created successfully", UserId: newUser.UserId });
+    return;
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
+    return;
   }
 };

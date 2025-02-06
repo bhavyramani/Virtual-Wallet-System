@@ -12,7 +12,6 @@ __pycache__/
 *.log
 
 debug/
-docker-compose.yml
 
 # Ignore system-specific files
 .DS_Store
