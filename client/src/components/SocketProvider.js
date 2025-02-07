@@ -25,7 +25,7 @@ const SocketProvider = () => {
       });
 
       socketInstance.on("fund_transfer", (data) => {
-        toast.success(data.message);
+        toast.info(data.message);
       });
 
       setSocket(socketInstance);
