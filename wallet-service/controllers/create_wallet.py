@@ -15,7 +15,7 @@ def create_wallet():
         return jsonify({"message": "UserId is required"}), 400
 
     try:
-        new_wallet = Wallet(UserId=UserId, Balance=0)
+        new_wallet = Wallet(UserId=UserId, Balance=1000)
         db.session.add(new_wallet)
         db.session.commit()
         return (
