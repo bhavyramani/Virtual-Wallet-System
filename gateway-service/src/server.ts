@@ -9,12 +9,45 @@ import bodyParser from "body-parser";
 import morgan from "morgan";
 import { authMiddleware } from "./middlewares/auth.middleware";
 import { Request, Response, NextFunction } from "express";
+import http from "http";
+import { Server } from "socket.io";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 const RateLimit = parseInt(process.env.RATE_LIMIT || "100");
+
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  },
+});
+const connectedUsers: Record<string, string> = {};
+
+// Handle WebSocket connections
+io.on("connection", (socket) => {
+  console.log(`User connected: ${socket.id}`);
+
+  // Listen for user registration with their ID
+  socket.on("register", (userId) => {
+    connectedUsers[userId] = socket.id;
+    console.log(`User registered: ${userId} -> ${socket.id}`);
+  });
+
+  // Handle user disconnection
+  socket.on("disconnect", () => {
+    for (const userId in connectedUsers) {
+      if (connectedUsers[userId] === socket.id) {
+        delete connectedUsers[userId];
+        console.log(`User disconnected: ${userId}`);
+        break;
+      }
+    }
+  });
+});
 
 app.use(
   cors({
@@ -62,7 +95,7 @@ app.use(
     pathRewrite: {
       "^/wallet": "",
     },
-  })
+  }),
 );
 
 app.use(express.json());
@@ -79,6 +112,8 @@ app.use(limiter);
 app.use("/", router);
 
 // Start the Gateway Service
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Gateway Service is running on http://localhost:${PORT}`);
 });
+
+export {io, connectedUsers};

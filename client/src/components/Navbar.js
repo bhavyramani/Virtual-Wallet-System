@@ -9,6 +9,7 @@ import Link from "next/link";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { redirect } from "next/navigation";
+import { socketInstance } from "./SocketProvider";
 
 const navigation = [
   {
@@ -35,10 +36,6 @@ function classNames(...classes) {
 const Navbar = ({ user }) => {
   const [activeLink, setActiveLink] = useState("Dashboard");
 
-  useEffect(() => {
-    // Optional: If you need to use the user object for other purposes.
-  }, [user]);
-
   const handleNavClick = (itemName) => {
     setActiveLink(itemName);
   };
@@ -52,6 +49,9 @@ const Navbar = ({ user }) => {
 
     if (response.status === 200) {
       toast.success("Sign out successful.");
+      socketInstance.emit("logout", localStorage.getItem("UserId")); 
+      localStorage.removeItem("UserId");
+      socketInstance.disconnect();
       redirect("/login");
     } else {
       toast.error("Sign out failed.");
