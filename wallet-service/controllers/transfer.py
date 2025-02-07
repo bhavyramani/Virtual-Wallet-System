@@ -2,10 +2,16 @@ from flask import Blueprint, request, jsonify
 from datetime import datetime, timedelta
 from sqlalchemy.exc import SQLAlchemyError
 from db import db
+from dotenv import load_dotenv
+import os
+import requests
 from models.wallet import Wallet
 from models.transaction import Transaction
 from utils.redis_client import get_redis_client
 from middleware import extract_user_middleware
+
+load_dotenv()
+GATEWAY_URL = os.getenv("GATEWAY_URL")
 
 transfer_bp = Blueprint("transfer", __name__)
 client = get_redis_client()
@@ -60,6 +66,13 @@ def transfer_funds():
             timedelta(seconds=3600),
             str(receiver_wallet.Balance),
         )
+
+        notify_data = {"To": To, "Amount": Amount, "From": From}
+        try:
+            requests.post(f"{GATEWAY_URL}/notify", json=notify_data, timeout=3)
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to notify Gateway: {e}")
+
         return (
             jsonify(
                 {"message": "Transfer successful", "transaction": transaction.to_dict()}

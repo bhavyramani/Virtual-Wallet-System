@@ -8,4 +8,5 @@ router.get("/health", (req, res) => {
   res.status(200).json({ message: "Gateway service is healthy!" });
 });
 
+
 export default router;
