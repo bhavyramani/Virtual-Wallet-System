@@ -95,7 +95,7 @@ app.use(
     pathRewrite: {
       "^/wallet": "",
     },
-  }),
+  })
 );
 
 app.use(express.json());
@@ -109,11 +109,37 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-app.use("/", router);
+app.post(
+  "/notify",
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const { To, Amount, From } = req.body;
+
+    if (!To || !Amount || !From) {
+      res.status(400).json({ message: "Invalid notification data" });
+      return;
+    }
+    
+    const receiverSocketId = connectedUsers[To];
+
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("fund_transfer", {
+        message: `You received ₹${Amount} from ${From}`,
+      });
+      console.log(
+        `Notification sent to User ${To}: ${Amount} credits received.`
+      );
+    } else {
+      console.log(`User ${To} is not connected, cannot send notification.`);
+    }
+
+    res.status(200).json({ message: "Notification processed" });
+    return;
+  }
+);
 
 // Start the Gateway Service
 server.listen(PORT, () => {
   console.log(`Gateway Service is running on http://localhost:${PORT}`);
 });
 
-export {io, connectedUsers};
+export { io, connectedUsers };
