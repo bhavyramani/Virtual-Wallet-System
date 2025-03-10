@@ -14,10 +14,10 @@ export const updateEmail = [
 
     const { Email } = req.body;
     const UserId = req.params.id;
-
+    
     try {
       const existingEmail = await User.findOne({ Email });
-      if (existingEmail) {
+      if (existingEmail && existingEmail.UserId !== UserId) {
         res.status(400).json({ message: "Email already exists" });
         return;
       }

@@ -9,29 +9,11 @@ const SettingsPage = () => {
     Email: "",
     Name: "",
     Phone: "",
+    EmailVerified: false,
   });
   const [loading, setLoading] = useState(true);
-  const [UserId, setUserId] = useState(null); // State to store UserId
-
-  const fetchUserData = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/${UserId}`,
-        {
-          withCredentials: true,
-        }
-      );
-      setUserData({
-        Email: response.data.Email || "",
-        Name: response.data.Name || "",
-        Phone: response.data.Phone || "",
-      });
-    } catch (error) {
-      toast.error("Failed to load user data.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [UserId, setUserId] = useState(null);
+  const [updateLoading, setUpdateLoading] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -48,29 +30,50 @@ const SettingsPage = () => {
     }
   }, [UserId]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUserData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+  const fetchUserData = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/${UserId}`,
+        { withCredentials: true }
+      );
+      setUserData({
+        Email: response.data.Email || "",
+        Name: response.data.Name || "",
+        Phone: response.data.Phone || "",
+        EmailVerified: response.data.EmailVerified || false,
+      });
+    } catch (error) {
+      toast.error("Failed to load user data.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const handleUpdate = async (field, value) => {
     try {
-      const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/${UserId}`,
-        userData,
+      setUpdateLoading(true);
+      const { data } = await axios.put(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/update-${field}/${UserId}`,
+        { [field]: value },
         { withCredentials: true }
       );
 
-      toast.success("Profile updated successfully!");
+      if (field === "email") {
+        toast.info(data.message);
+        setUserData((prev) => ({ ...prev, EmailVerified: false }));
+      } else if (field === "Phone") {
+        toast.info("Phone number updated. Verification required.");
+      } else {
+        toast.success("Name updated successfully!");
+      }
+
+      setUserData((prev) => ({ ...prev, [field]: value }));
     } catch (error) {
       toast.error(
-        error.response.data.message || error.response.data.errors[0]?.msg
+        error.response?.data?.message || "Failed to update information."
       );
+    } finally {
+      setUpdateLoading(false);
     }
   };
 
@@ -81,69 +84,81 @@ const SettingsPage = () => {
       {loading ? (
         <p>Loading your current information...</p>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
+        <div className="space-y-4">
+          {/* Email */}
+          <div className="flex items-center gap-2">
+            <div className="w-full">
+              <label className="block text-sm font-medium text-gray-700">
+                Email
+              </label>
+              <input
+                type="email"
+                value={userData.Email || ""}
+                onChange={(e) =>
+                  setUserData((prev) => ({ ...prev, Email: e.target.value }))
+                }
+                className="mt-1 block w-full p-2 border rounded-md"
+                placeholder="Enter your email"
+              />
+            </div>
+            <button
+              style={{ display: `${updateLoading ? "none" : "block"}` }}
+              onClick={() => handleUpdate("email", userData.Email)}
+              className="p-2 bg-blue-500 text-white rounded-md"
             >
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              name="Email"
-              value={userData.Email || ""}
-              onChange={handleChange}
-              className="mt-1 block w-full p-2 border rounded-md"
-              placeholder="Enter your email"
-              required
-            />
+              {userData.EmailVerified ? "Save" : "Verify"}
+            </button>
           </div>
 
-          <div>
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-gray-700"
+          {/* Name */}
+          <div className="flex items-center gap-2">
+            <div className="w-full">
+              <label className="block text-sm font-medium text-gray-700">
+                Name
+              </label>
+              <input
+                type="text"
+                value={userData.Name || ""}
+                onChange={(e) =>
+                  setUserData((prev) => ({ ...prev, Name: e.target.value }))
+                }
+                className="mt-1 block w-full p-2 border rounded-md"
+                placeholder="Enter your name"
+              />
+            </div>
+            <button
+              onClick={() => handleUpdate("name", userData.Name)}
+              className="p-2 bg-blue-500 text-white rounded-md"
+              disabled={updateLoading}
             >
-              Name
-            </label>
-            <input
-              id="name"
-              type="text"
-              name="Name"
-              value={userData.Name || ""}
-              onChange={handleChange}
-              className="mt-1 block w-full p-2 border rounded-md"
-              placeholder="Enter your name"
-            />
+              Save
+            </button>
           </div>
 
-          <div>
-            <label
-              htmlFor="phone"
-              className="block text-sm font-medium text-gray-700"
+          {/* Phone */}
+          <div className="flex items-center gap-2">
+            <div className="w-full">
+              <label className="block text-sm font-medium text-gray-700">
+                Phone
+              </label>
+              <input
+                type="text"
+                value={userData.Phone || ""}
+                onChange={(e) =>
+                  setUserData((prev) => ({ ...prev, Phone: e.target.value }))
+                }
+                className="mt-1 block w-full p-2 border rounded-md"
+                placeholder="Enter your phone number"
+              />
+            </div>
+            <button
+              onClick={() => handleUpdate("phone", userData.Phone)}
+              className="p-2 bg-blue-500 text-white rounded-md"
             >
-              Phone
-            </label>
-            <input
-              id="phone"
-              type="text"
-              name="Phone"
-              value={userData.Phone || ""}
-              onChange={handleChange}
-              className="mt-1 block w-full p-2 border rounded-md"
-              placeholder="Enter your phone number"
-            />
+              Save
+            </button>
           </div>
-
-          <button
-            type="submit"
-            className="mt-4 w-full p-2 bg-blue-500 text-white rounded-md"
-          >
-            Save Changes
-          </button>
-        </form>
+        </div>
       )}
     </div>
   );
