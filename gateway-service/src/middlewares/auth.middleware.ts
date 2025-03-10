@@ -11,6 +11,11 @@ export const authMiddleware = (
   next: NextFunction
 ): void => {
   try {
+    if(req.url.startsWith("/verify-email")){
+      req.user = { UserId: "verify-email" };
+      next();
+      return;
+    }
     const token = req.headers.cookie?.split("=")[1];
     if (!token) {
       res.status(401).json({ message: "Authentication token missing" });
@@ -18,7 +23,7 @@ export const authMiddleware = (
     }
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET!
+      process.env.JWT_SECRET as string
     ) as AuthTokenPayload;
 
     if (!decoded.UserId) {

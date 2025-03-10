@@ -76,6 +76,7 @@ export const getProfile = async (
 
       // Add balance to the response if it's the current user's profile
       profileData["Balance"] = walletBalance;
+      profileData["EmailVerified"] = profile.EmailVerified;
     }
 
     res.status(200).json(profileData);

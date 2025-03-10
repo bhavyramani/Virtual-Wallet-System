@@ -40,9 +40,9 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
 
     // Set the JWT token as a cookie
     res.cookie("token", token, {
-      httpOnly: true, // Helps to prevent XSS attacks
+      httpOnly: true, 
       secure: process.env.NODE_ENV === "production",
-      sameSite: false,
+      sameSite: "none",
       maxAge: 3600000,
     });
     res.status(200).json({ message: "Login successful", UserId: user.UserId });

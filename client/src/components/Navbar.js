@@ -65,7 +65,7 @@ const Navbar = ({ user }) => {
         <div className="flex items-center justify-center p-4">
           <img
             alt="Your Company"
-            src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=500"
+            src="https://tailwindui.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
             className="h-8 w-auto"
           />
         </div>
