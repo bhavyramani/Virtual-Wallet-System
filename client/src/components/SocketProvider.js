@@ -12,7 +12,7 @@ const SocketProvider = () => {
 
   const initializeSocket = () => {
     const userId = localStorage.getItem("UserId");
-    
+
     if (userId) {
       if (socketInstance) {
         socketInstance.disconnect();

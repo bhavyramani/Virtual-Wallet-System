@@ -3,15 +3,20 @@ import Profile from "../models/profile.model";
 import { generateEmailVerificationToken } from "../utils/generateToken";
 import { sendEmail } from "../utils/emailService";
 
-export const updateEmail = async (req: Request, res: Response): Promise<void> => {
+export const updateEmail = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { id } = req.params;
   const Email = req.body.email;
-  
+
   try {
     // Basic validations
     const UserId = req.headers["x-user-id"] as string;
     if (UserId !== id) {
-      res.status(403).json({ message: "You are not authorized to update this profile" });
+      res
+        .status(403)
+        .json({ message: "You are not authorized to update this profile" });
       return;
     }
 
@@ -34,15 +39,20 @@ export const updateEmail = async (req: Request, res: Response): Promise<void> =>
 
     // If the new email is different, check if it's already used by another user.
     if (profile.Email !== Email) {
-      const otherProfile = await Profile.findOne({ Email, UserId: { $ne: id } });
+      const otherProfile = await Profile.findOne({
+        Email,
+        UserId: { $ne: id },
+      });
       if (otherProfile) {
-        res.status(400).json({ message: "Email already in use by another user." });
+        res
+          .status(400)
+          .json({ message: "Email already in use by another user." });
         return;
       }
     }
 
     // Generate verification token and send the verification email
-    const token = await generateEmailVerificationToken(id);
+    const token = await generateEmailVerificationToken(id, "email");
     const verificationLink = `${process.env.FRONTEND_URL}/verify-email?token=${token}&newEmail=${Email}`;
     const emailContent = `
       <p>You requested to change your email to <strong>${Email}</strong>.</p>

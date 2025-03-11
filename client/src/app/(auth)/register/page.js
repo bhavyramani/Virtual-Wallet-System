@@ -186,6 +186,15 @@ const RegistrationPage = () => {
               Login here
             </Link>
           </p>
+          <p className="mt-2 text-sm text-gray-600">
+            Forgot your password?{" "}
+            <Link
+              href="/forgot-password"
+              className="font-medium text-indigo-600 hover:text-indigo-500"
+            >
+              Reset it here
+            </Link>
+          </p>
         </div>
       </div>
     </div>
