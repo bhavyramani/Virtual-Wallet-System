@@ -49,7 +49,7 @@ const Navbar = ({ user }) => {
 
     if (response.status === 200) {
       toast.success("Sign out successful.");
-      socketInstance.emit("logout", localStorage.getItem("UserId")); 
+      socketInstance.emit("logout", localStorage.getItem("UserId"));
       localStorage.removeItem("UserId");
       socketInstance.disconnect();
       redirect("/login");

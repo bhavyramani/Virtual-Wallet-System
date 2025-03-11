@@ -14,7 +14,7 @@ export const updateEmail = [
 
     const { Email } = req.body;
     const UserId = req.params.id;
-    
+
     try {
       const existingEmail = await User.findOne({ Email });
       if (existingEmail && existingEmail.UserId !== UserId) {

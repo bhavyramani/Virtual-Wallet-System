@@ -118,7 +118,7 @@ app.post(
       res.status(400).json({ message: "Invalid notification data" });
       return;
     }
-    
+
     const receiverSocketId = connectedUsers[To];
 
     if (receiverSocketId) {

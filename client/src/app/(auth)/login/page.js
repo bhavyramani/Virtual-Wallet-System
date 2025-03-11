@@ -10,17 +10,14 @@ const LoginPage = () => {
     email: "",
     password: "",
   });
-
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
-
   const router = useRouter();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-
     validateField(name, value);
   };
 
@@ -153,6 +150,15 @@ const LoginPage = () => {
               className="font-medium text-indigo-600 hover:text-indigo-500"
             >
               Sign up here
+            </Link>
+          </p>
+          <p className="mt-2 text-sm text-gray-600">
+            Forgot your password?{" "}
+            <Link
+              href="/forgot-password"
+              className="font-medium text-indigo-600 hover:text-indigo-500"
+            >
+              Reset it here
             </Link>
           </p>
         </div>

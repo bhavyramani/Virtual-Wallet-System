@@ -8,6 +8,8 @@ interface IProfile extends Document {
   EmailVerified: boolean;
   EmailVerificationToken?: string;
   EmailVerificationExpires?: Date;
+  PasswordResetToken?: string;
+  PasswordResetExpires?: Date;
 }
 
 const profileSchema: Schema = new Schema({
@@ -18,6 +20,8 @@ const profileSchema: Schema = new Schema({
   EmailVerified: { type: Boolean, default: false },
   EmailVerificationToken: { type: String, default: null },
   EmailVerificationExpires: { type: Date, default: null },
+  PasswordResetToken: { type: String, default: null },
+  PasswordResetExpires: { type: Date, default: null },
 });
 
 const Profile = mongoose.model<IProfile>("Profile", profileSchema);

@@ -11,7 +11,10 @@ export const authMiddleware = (
   next: NextFunction
 ): void => {
   try {
-    if(req.url.startsWith("/verify-email")){
+    if (
+      req.url.startsWith("/verify-email") ||
+      req.url.startsWith("/forgot-password")
+    ) {
       req.user = { UserId: "verify-email" };
       next();
       return;

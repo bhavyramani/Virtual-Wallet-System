@@ -9,7 +9,6 @@ export const getProfile = async (
 ): Promise<void> => {
   try {
     const userId = req.headers["x-user-id"] as string;
-
     const profile = await Profile.findOne({ UserId: userId });
     if (!profile) {
       res.status(404).json({ message: "User not found" });
