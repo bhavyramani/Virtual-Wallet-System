@@ -10,10 +10,16 @@ const SettingsPage = () => {
     Name: "",
     Phone: "",
     EmailVerified: false,
+    PhoneVerified: false,
   });
   const [loading, setLoading] = useState(true);
   const [UserId, setUserId] = useState(null);
   const [updateLoading, setUpdateLoading] = useState(false);
+
+  // OTP-related state for phone verification
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [resendTimer, setResendTimer] = useState(60);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -30,6 +36,22 @@ const SettingsPage = () => {
     }
   }, [UserId]);
 
+  useEffect(() => {
+    let timer;
+    if (otpSent && resendTimer > 0) {
+      timer = setInterval(() => {
+        setResendTimer((prev) => {
+          if (prev === 1) {
+            clearInterval(timer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [otpSent, resendTimer]);
+
   const fetchUserData = async () => {
     try {
       const response = await axios.get(
@@ -39,8 +61,9 @@ const SettingsPage = () => {
       setUserData({
         Email: response.data.Email || "",
         Name: response.data.Name || "",
-        Phone: response.data.Phone || "",
+        Phone: response.data.Phone?.slice(3) || "",
         EmailVerified: response.data.EmailVerified || false,
+        PhoneVerified: response.data.PhoneVerified || false,
       });
     } catch (error) {
       toast.error("Failed to load user data.");
@@ -49,29 +72,91 @@ const SettingsPage = () => {
     }
   };
 
-  const handleUpdate = async (field, value) => {
+  const handleEmailUpdate = async (value) => {
     try {
       setUpdateLoading(true);
-      const { data } = await axios.put(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/update-${field}/${UserId}`,
-        { [field]: value },
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/update-email/${UserId}`,
+        { email: value },
         { withCredentials: true }
       );
-
-      if (field === "email") {
-        toast.info(data.message);
-        setUserData((prev) => ({ ...prev, EmailVerified: false }));
-      } else if (field === "Phone") {
-        toast.info("Phone number updated. Verification required.");
-      } else {
-        toast.success("Name updated successfully!");
+      if (response.status === 200) {
+        toast.info(response.data.message);
+        setUserData((prev) => ({ ...prev, EmailVerified: true, Email: value }));
       }
-
-      setUserData((prev) => ({ ...prev, [field]: value }));
     } catch (error) {
       toast.error(
-        error.response?.data?.message || "Failed to update information."
+        error.response?.data?.message || "Failed to update email."
       );
+    } finally {
+      setUpdateLoading(false);
+    }
+  };
+
+  const handleNameUpdate = async (value) => {
+    try {
+      setUpdateLoading(true);
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/update-name/${UserId}`,
+        { name: value },
+        { withCredentials: true }
+      );
+      if (response.status === 200) {
+        toast.success("Name updated successfully!");
+        setUserData((prev) => ({ ...prev, Name: value }));
+      }
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Failed to update name."
+      );
+    } finally {
+      setUpdateLoading(false);
+    }
+  };
+
+  // Phone update: when clicking the button, send OTP request
+  const handleSendOtp = async () => {
+    if (!/^[0-9]{10}$/.test(userData.Phone)) {
+      toast.error("Phone number must be exactly 10 digits.");
+      return;
+    }
+    try {
+      setUpdateLoading(true);
+      const phoneWithPrefix = `+91${userData.Phone}`;
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/send-otp`,
+        { UserId, Phone: phoneWithPrefix },
+        { withCredentials: true }
+      );
+      if (response.status === 200) {
+        toast.success(response.data.message);
+        setOtpSent(true);
+        setResendTimer(60);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to send OTP.");
+    } finally {
+      setUpdateLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    try {
+      setUpdateLoading(true);
+      const phoneWithPrefix = `+91${userData.Phone}`;
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/verify-otp`,
+        { UserId, OTP: otp, type: "change", Phone: phoneWithPrefix },
+        { withCredentials: true }
+      );
+      if (response.status === 200) {
+        toast.success(response.data.message);
+        setUserData((prev) => ({ ...prev, PhoneVerified: true }));
+        setOtpSent(false);
+        setOtp("");
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "OTP verification failed.");
     } finally {
       setUpdateLoading(false);
     }
@@ -80,84 +165,82 @@ const SettingsPage = () => {
   return (
     <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
       <h1 className="text-2xl font-bold mb-4">Settings</h1>
-
       {loading ? (
         <p>Loading your current information...</p>
       ) : (
         <div className="space-y-4">
-          {/* Email */}
-          <div className="flex items-center gap-2">
-            <div className="w-full">
-              <label className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
-              <input
-                type="email"
-                value={userData.Email || ""}
-                onChange={(e) =>
-                  setUserData((prev) => ({ ...prev, Email: e.target.value }))
-                }
-                className="mt-1 block w-full p-2 border rounded-md"
-                placeholder="Enter your email"
-              />
-            </div>
+          <div>
+            <label className="block text-gray-700 font-semibold">Email</label>
+            <input
+              type="email"
+              value={userData.Email}
+              onChange={(e) => setUserData({ ...userData, Email: e.target.value })}
+              className="w-full border p-2 rounded"
+            />
             <button
-              style={{ display: `${updateLoading ? "none" : "block"}` }}
-              onClick={() => handleUpdate("email", userData.Email)}
-              className="p-2 bg-blue-500 text-white rounded-md"
-            >
-              {userData.EmailVerified ? "Save" : "Verify"}
-            </button>
-          </div>
-
-          {/* Name */}
-          <div className="flex items-center gap-2">
-            <div className="w-full">
-              <label className="block text-sm font-medium text-gray-700">
-                Name
-              </label>
-              <input
-                type="text"
-                value={userData.Name || ""}
-                onChange={(e) =>
-                  setUserData((prev) => ({ ...prev, Name: e.target.value }))
-                }
-                className="mt-1 block w-full p-2 border rounded-md"
-                placeholder="Enter your name"
-              />
-            </div>
-            <button
-              onClick={() => handleUpdate("name", userData.Name)}
-              className="p-2 bg-blue-500 text-white rounded-md"
+              className="mt-2 bg-blue-500 text-white px-4 py-2 rounded"
+              onClick={() => handleEmailUpdate(userData.Email)}
               disabled={updateLoading}
             >
-              Save
+              Update Email
             </button>
           </div>
 
-          {/* Phone */}
-          <div className="flex items-center gap-2">
-            <div className="w-full">
-              <label className="block text-sm font-medium text-gray-700">
-                Phone
-              </label>
-              <input
-                type="text"
-                value={userData.Phone || ""}
-                onChange={(e) =>
-                  setUserData((prev) => ({ ...prev, Phone: e.target.value }))
-                }
-                className="mt-1 block w-full p-2 border rounded-md"
-                placeholder="Enter your phone number"
-              />
-            </div>
+          <div>
+            <label className="block text-gray-700 font-semibold">Name</label>
+            <input
+              type="text"
+              value={userData.Name}
+              onChange={(e) => setUserData({ ...userData, Name: e.target.value })}
+              className="w-full border p-2 rounded"
+            />
             <button
-              onClick={() => handleUpdate("phone", userData.Phone)}
-              className="p-2 bg-blue-500 text-white rounded-md"
+              className="mt-2 bg-green-500 text-white px-4 py-2 rounded"
+              onClick={() => handleNameUpdate(userData.Name)}
+              disabled={updateLoading}
             >
-              Save
+              Update Name
             </button>
           </div>
+
+          <div>
+            <label className="block text-gray-700 font-semibold">Phone</label>
+            <input
+              type="text"
+              value={userData.Phone}
+              onChange={(e) => setUserData({ ...userData, Phone: e.target.value })}
+              className="w-full border p-2 rounded"
+            />
+            <button
+              className="mt-2 bg-yellow-500 text-white px-4 py-2 rounded"
+              onClick={handleSendOtp}
+              disabled={updateLoading}
+            >
+              {userData.PhoneVerified ? "Update Phone" : "Verify Phone"}
+            </button>
+          </div>
+
+          {otpSent && (
+            <div>
+              <label className="block text-gray-700 font-semibold">Enter OTP</label>
+              <input
+                type="text"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                className="w-full border p-2 rounded"
+              />
+              <button
+                className="mt-2 bg-purple-500 text-white px-4 py-2 rounded"
+                onClick={handleVerifyOtp}
+                disabled={updateLoading}
+              >
+                Verify OTP
+              </button>
+              <p className="text-sm mt-2">
+                Didn't receive OTP? {resendTimer > 0 ? `Resend in ${resendTimer}s` : <span className="text-blue-500 cursor-pointer" onClick={handleSendOtp}>Resend OTP</span>}
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>
