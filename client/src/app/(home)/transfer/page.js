@@ -9,6 +9,10 @@ const TransferPage = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [transferAmount, setTransferAmount] = useState("");
   const [loading, setLoading] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [resendTimer, setResendTimer] = useState(60);
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
@@ -24,7 +28,7 @@ const TransferPage = () => {
       setUsers(response.data);
     } catch (error) {
       toast.error(
-        error.response.data.message || error.response.data.errors[0]?.msg
+        error.response?.data?.message || error.response?.data?.errors[0]?.msg
       );
     }
   };
@@ -32,15 +36,78 @@ const TransferPage = () => {
   const handleSelectUser = (user) => {
     setSelectedUser(user);
     setTransferAmount("");
+    setOtp("");
+    setOtpSent(false);
+    setOtpVerified(false);
   };
 
-  const handleTransfer = async () => {
+  const handleSendOtp = async () => {
     if (
       !transferAmount ||
       isNaN(transferAmount) ||
       Number(transferAmount) <= 0
     ) {
       toast.error("Please enter a valid amount to transfer.");
+      return;
+    }
+    try {
+      setLoading(true);
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/send-otp`,
+        { UserId: localStorage.getItem("UserId"), type: "transaction" },
+        { withCredentials: true }
+      );
+      if (response.status === 200) {
+        toast.success(response.data.message);
+        setOtpSent(true);
+        setResendTimer(60);
+        let timer = setInterval(() => {
+          setResendTimer((prev) => {
+            if (prev === 1) {
+              clearInterval(timer);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to send OTP.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!otp) {
+      toast.error("Please enter the OTP.");
+      return;
+    }
+    try {
+      setLoading(true);
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/verify-otp`,
+        {
+          UserId: localStorage.getItem("UserId"),
+          OTP: otp,
+          type: "transaction",
+        },
+        { withCredentials: true }
+      );
+      if (response.status === 200) {
+        toast.success("OTP verified successfully!");
+        setOtpVerified(true);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "OTP verification failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTransfer = async () => {
+    if (!otpVerified) {
+      toast.error("Please verify OTP before making the transfer.");
       return;
     }
 
@@ -59,9 +126,12 @@ const TransferPage = () => {
       toast.success("Transfer successful!");
       setSelectedUser(null);
       setTransferAmount("");
+      setOtp("");
+      setOtpSent(false);
+      setOtpVerified(false);
     } catch (error) {
       toast.error(
-        error.response.data.message || error.response.data.errors[0]?.msg
+        error.response?.data?.message || error.response?.data?.errors[0]?.msg
       );
     } finally {
       setLoading(false);
@@ -130,13 +200,57 @@ const TransferPage = () => {
               min="1"
             />
             <button
+              onClick={handleSendOtp}
+              className="p-2 bg-yellow-500 text-white rounded-md"
+              disabled={loading}
+            >
+              {otpSent ? "Resend OTP" : "Send OTP"}
+            </button>
+          </div>
+
+          {otpSent && (
+            <div className="mt-4">
+              <label className="block text-gray-700 font-semibold">
+                Enter OTP
+              </label>
+              <input
+                type="text"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                className="p-2 border rounded-md w-full"
+              />
+              <button
+                onClick={handleVerifyOtp}
+                className="mt-2 p-2 bg-purple-500 text-white rounded-md w-full"
+                disabled={loading}
+              >
+                Verify OTP
+              </button>
+              <p className="text-sm mt-2">
+                Didn't receive OTP?{" "}
+                {resendTimer > 0 ? (
+                  `Resend in ${resendTimer}s`
+                ) : (
+                  <span
+                    className="text-blue-500 cursor-pointer"
+                    onClick={handleSendOtp}
+                  >
+                    Resend OTP
+                  </span>
+                )}
+              </p>
+            </div>
+          )}
+
+          {otpVerified && (
+            <button
               onClick={handleTransfer}
-              className="p-2 bg-blue-500 text-white rounded-md"
+              className="mt-4 p-2 bg-blue-500 text-white rounded-md w-full"
               disabled={loading}
             >
               {loading ? "Processing..." : "Confirm Transfer"}
             </button>
-          </div>
+          )}
         </div>
       )}
     </div>
