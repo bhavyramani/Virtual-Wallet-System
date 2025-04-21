@@ -27,7 +27,7 @@ export const getProfile = async (
       Name,
       Phone,
       Email,
-      UserId,
+      UserId
     };
 
     const { id } = req.params;

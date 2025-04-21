@@ -21,6 +21,9 @@ const SettingsPage = () => {
   const [otp, setOtp] = useState("");
   const [resendTimer, setResendTimer] = useState(60);
 
+  // Image upload related state
+  const [image, setImage] = useState(null);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const userIdFromStorage = localStorage.getItem("UserId");
@@ -162,6 +165,24 @@ const SettingsPage = () => {
     }
   };
 
+  const handleImageUpload = async (e) => {
+    const formData = new FormData();
+    formData.append("profileImage", image);
+    try {
+      setUpdateLoading(true);
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/upload-profile-image`,
+        formData,
+        { headers: { "x-user-id": UserId }, withCredentials: true }
+      );
+      toast.success(response.data.message);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to upload image.");
+    } finally {
+      setUpdateLoading(false);
+    }
+  };
+
   return (
     <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
       <h1 className="text-2xl font-bold mb-4">Settings</h1>
@@ -169,6 +190,22 @@ const SettingsPage = () => {
         <p>Loading your current information...</p>
       ) : (
         <div className="space-y-4">
+          <div>
+            <label className="block text-gray-700 font-semibold">Profile Image</label>
+            <input
+              type="file"
+              onChange={(e) => setImage(e.target.files[0])}
+              className="w-full border p-2 rounded"
+            />
+            <button
+              className="mt-2 bg-indigo-500 text-white px-4 py-2 rounded"
+              onClick={handleImageUpload}
+              disabled={updateLoading || !image}
+            >
+              Upload Profile Image
+            </button>
+          </div>
+
           <div>
             <label className="block text-gray-700 font-semibold">Email</label>
             <input
@@ -241,6 +278,7 @@ const SettingsPage = () => {
               </p>
             </div>
           )}
+
         </div>
       )}
     </div>

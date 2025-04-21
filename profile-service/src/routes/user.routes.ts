@@ -9,6 +9,7 @@ import { forgotPassword } from "../controllers/forgotPassword.controller";
 import { validateResetToken } from "../controllers/validateResetToken.controller";
 import { sendOTP } from "../controllers/sendOTP.controller";
 import { verifyOtp } from "../controllers/verifyOTP.controller";
+import { uploadProfileImage } from "../controllers/uploadProfileImage.controller";
 
 const router = express.Router();
 
@@ -22,5 +23,6 @@ router.put("/update-email/:id", updateEmail);
 router.post("/verify-email", verifyEmail);
 router.post("/send-otp", sendOTP);
 router.post("/verify-otp", verifyOtp);
+router.post("/upload-profile-image", uploadProfileImage);
 
 export default router;

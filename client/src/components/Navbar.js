@@ -35,6 +35,7 @@ function classNames(...classes) {
 
 const Navbar = ({ user }) => {
   const [activeLink, setActiveLink] = useState("Dashboard");
+  const [userId, setUserId] = useState(null);
 
   const handleNavClick = (itemName) => {
     setActiveLink(itemName);
@@ -64,8 +65,8 @@ const Navbar = ({ user }) => {
       <div className="bg-gray-800 w-64 h-screen flex flex-col">
         <div className="flex items-center justify-center p-4">
           <img
-            alt="Your Company"
-            src="https://tailwindui.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
+            alt="Loading..."
+            src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/uploads/${localStorage.getItem("UserId")}.jpg`}
             className="h-8 w-auto"
           />
         </div>
