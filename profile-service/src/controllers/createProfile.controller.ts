@@ -8,7 +8,7 @@ export const createProfile = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  console.log(req.body);
+
   const { UserId, Name, Email, Phone } = req.body;
   try {
     const existingProfile = await Profile.findOne({ Email });
