@@ -9,7 +9,8 @@ export const getProfile = async (
 ): Promise<void> => {
   try {
     const userId = req.headers["x-user-id"] as string;
-    const profile = await Profile.findOne({ UserId: userId });
+    const { id } = req.params;
+    const profile = await Profile.findOne({ UserId: id });
     if (!profile) {
       res.status(404).json({ message: "User not found" });
       return;
@@ -30,7 +31,6 @@ export const getProfile = async (
       UserId
     };
 
-    const { id } = req.params;
     if (id === userId) {
       const cachedBalance = await getAsync(`wallet_balance:${userId}`);
       let walletBalance = "0";
