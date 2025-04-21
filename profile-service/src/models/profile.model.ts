@@ -13,6 +13,7 @@ interface IProfile extends Document {
   PasswordResetExpires?: Date;
   PhoneOtp?: string;
   PhoneOtpExpires?: Date;
+  ProfileImageUrl?: string;
 }
 
 const profileSchema: Schema = new Schema({
@@ -28,6 +29,7 @@ const profileSchema: Schema = new Schema({
   PasswordResetExpires: { type: Date, default: null },
   PhoneOtp: { type: String, default: null },
   PhoneOtpExpires: { type: Date, default: null },
+  ProfileImageUrl: { type: String, default: null },
 });
 
 const Profile = mongoose.model<IProfile>("Profile", profileSchema);

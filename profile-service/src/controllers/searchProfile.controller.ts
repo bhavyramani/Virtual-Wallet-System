@@ -7,34 +7,30 @@ export const searchProfile = async (
 ): Promise<void> => {
   try {
     const { user } = req.body;
+    const userId = req.headers["x-user-id"];
+
     if (!user) {
-      res.status(500).json({ message: "User Id Not Found" });
+      res.status(400).json({ message: "Search query is required." });
       return;
     }
 
-    const profile = await Profile.findOne({
-      $or: [{ Phone: user }, { Email: user }],
-    });
-    if (!profile) {
-      res.status(500).json({ message: "User not found" });
+    const profiles = await Profile.find({
+      $or: [
+        { Phone: { $regex: user, $options: "i" } },
+        { Email: { $regex: user, $options: "i" } },
+        { Name: { $regex: user, $options: "i" } },
+      ],
+      UserId: { $ne: userId }, // exclude self
+    }).select("UserId Name Email Phone");
+
+    if (profiles.length === 0) {
+      res.status(404).json({ message: "No users found" });
       return;
     }
 
-    if (profile["UserId"] == req.headers["x-user-id"]) {
-      res.status(500).json({ message: "Can not transfer to self" });
-      return;
-    }
-
-    res.status(200).json({
-      UserId: profile["UserId"],
-      Name: profile["Name"],
-      Phone: profile["Phone"],
-      Email: profile["Email"],
-    });
-    return;
+    res.status(200).json(profiles);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
-    return;
   }
 };

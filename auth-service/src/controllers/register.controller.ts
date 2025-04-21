@@ -47,6 +47,8 @@ export const registerUser = async (
         {
           UserId,
           Email,
+          Name: "",
+          Phone: ""
         }
       );
 

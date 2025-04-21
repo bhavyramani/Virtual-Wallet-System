@@ -23,7 +23,7 @@ export const updateName = async (
       return;
     }
 
-    if (Name && Name !== profile.Name) {
+    if (Name != profile.Name) {
       profile.Name = Name;
       await profile.save();
       res.status(200).json({ message: "Name updated successfully" });

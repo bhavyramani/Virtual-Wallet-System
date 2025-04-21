@@ -8,6 +8,7 @@ export const createProfile = async (
   req: Request,
   res: Response
 ): Promise<void> => {
+  console.log(req.body);
   const { UserId, Name, Email, Phone } = req.body;
   try {
     const existingProfile = await Profile.findOne({ Email });
@@ -32,8 +33,7 @@ export const createProfile = async (
         .json({ message: "Failed to create wallet" });
       return;
     }
-
-    const newProfile = new Profile({ UserId, Name, Email, Phone });
+    const newProfile = new Profile({ UserId, Name: Name, Email, Phone });
     await newProfile.save();
 
     await client.set(

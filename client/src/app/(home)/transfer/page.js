@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 
 const TransferPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [user, setUsers] = useState(null);
+  const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [transferAmount, setTransferAmount] = useState("");
   const [loading, setLoading] = useState(false);
@@ -28,8 +28,9 @@ const TransferPage = () => {
       setUsers(response.data);
     } catch (error) {
       toast.error(
-        error.response?.data?.message || error.response?.data?.errors[0]?.msg
+        error.response?.data?.message || error.response?.data?.errors?.[0]?.msg
       );
+      setUsers([]);
     }
   };
 
@@ -106,10 +107,10 @@ const TransferPage = () => {
   };
 
   const handleTransfer = async () => {
-    if (!otpVerified) {
-      toast.error("Please verify OTP before making the transfer.");
-      return;
-    }
+    // if (!otpVerified) {
+    //   toast.error("Please verify OTP before making the transfer.");
+    //   return;
+    // }
 
     setLoading(true);
     try {
@@ -129,9 +130,10 @@ const TransferPage = () => {
       setOtp("");
       setOtpSent(false);
       setOtpVerified(false);
+      setUsers([]);
     } catch (error) {
       toast.error(
-        error.response?.data?.message || error.response?.data?.errors[0]?.msg
+        error.response?.data?.message || error.response?.data?.errors?.[0]?.msg
       );
     } finally {
       setLoading(false);
@@ -158,29 +160,30 @@ const TransferPage = () => {
         </button>
       </div>
 
-      {user && (
+      {users.length > 0 && (
         <div className="mt-4">
           <h2 className="text-xl font-semibold mb-2">Users Found</h2>
-          <div className="p-4 border rounded-lg flex justify-between items-center">
-            <div className="flex flex-col">
-              <p>
-                <strong>Name:</strong> {user.Name}
-              </p>
-              <p>
-                <strong>Email:</strong> {user.Email}
-              </p>
-              <p>
-                <strong>Phone:</strong> {user.Phone}
-              </p>
-            </div>
-            <div>
-              <button
-                onClick={() => handleSelectUser(user)}
-                className="p-2 bg-green-500 text-white rounded-md"
+          <div className="flex flex-col gap-3">
+            {users.map((u) => (
+              <div
+                key={u.UserId}
+                className="p-4 border rounded-lg flex justify-between items-center hover:bg-gray-50"
               >
-                Transfer
-              </button>
-            </div>
+                <div className="flex flex-col">
+                  <p><strong>Name:</strong> {u.Name}</p>
+                  <p><strong>Email:</strong> {u.Email}</p>
+                  <p><strong>Phone:</strong> {u.Phone}</p>
+                </div>
+                <div>
+                  <button
+                    onClick={() => handleSelectUser(u)}
+                    className="p-2 bg-green-500 text-white rounded-md"
+                  >
+                    Transfer
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -190,7 +193,7 @@ const TransferPage = () => {
           <h2 className="text-lg font-semibold">
             Transfer to {selectedUser.Name}
           </h2>
-          <div className="flex gap-2">
+          <div className="flex gap-2 mt-2">
             <input
               type="number"
               placeholder="Enter amount"
@@ -200,11 +203,11 @@ const TransferPage = () => {
               min="1"
             />
             <button
-              onClick={handleSendOtp}
+              onClick={handleTransfer}
               className="p-2 bg-yellow-500 text-white rounded-md"
               disabled={loading}
             >
-              {otpSent ? "Resend OTP" : "Send OTP"}
+              Send
             </button>
           </div>
 
